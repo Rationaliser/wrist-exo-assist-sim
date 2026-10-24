@@ -1,4 +1,4 @@
-# Sit-to-Stand Assistance: Optimal Control vs. Reinforcement Learning
+# Wrist Exoskeleton Assistance after Stroke: Optimal Control vs. Reinforcement Learning
 
 Case study for **MDM2 – Assistive Robotics for Improvement of Life Quality**
 (Software & Simulation track), Deggendorf Institute of Technology.
@@ -7,26 +7,27 @@ Case study for **MDM2 – Assistive Robotics for Improvement of Life Quality**
 
 ## Overview
 
-Older adults with age-related leg weakness struggle to stand up from a chair. This project uses
-musculoskeletal simulation to find how much assistive torque, and at which joint, a weakened body
-needs to stand up, and compares an optimal-control plan with a learned feedback controller.
+After a stroke, weak wrist extensors make the wrist drop, so everyday tasks such as lifting a cup and
+holding it level fail. This project uses musculoskeletal simulation to find how much wrist assistance a
+weakened wrist needs, whether a passive spring is enough or a motor is required, and compares an
+optimal-control plan with a learned feedback controller.
 
-**Research question:** At what level of leg weakness does a simulated body fail to stand up, and
-what is the minimum hip or knee assistance that restores it?
+**Research question:** How weak can the wrist extensors get before a simulated arm can no longer lift
+and hold a cup, and what is the minimum wrist assistance that restores it?
 
 ## Approach
 
 | Route | Method | Tools |
 | --- | --- | --- |
-| A (primary) | Predictive sit-to-stand simulation; muscle strength reduced step by step; ideal hip/knee torque optimised for minimum muscle effort | OpenSim, Moco |
-| B (secondary) | RL policy learns to stand, guided by the Route A trajectory; robustness compared with the Moco plan | MuJoCo, MyoSuite, Stable-Baselines3 (PPO) |
+| A (primary) | Predictive cup lift-and-hold simulation; wrist-extensor strength reduced step by step; spring vs. ideal motor at the wrist, optimised for minimum muscle effort | OpenSim, Moco, MoBL-ARMS upper-limb model |
+| B (secondary) | RL policy learns the cup task, guided by the Route A motion; robustness compared with the Moco plan | MuJoCo, MyoSuite (myoHand), Stable-Baselines3 (PPO) |
 
 ## Measurable outcomes
 
-- **K1** Strength threshold (% of max. muscle force) where unassisted standing fails
-- **K2** Minimum assistive torque (Nm) at hip, knee or both that restores standing
-- **K3** Muscle-effort reduction (%) compared with no assistance
-- **K4** Success rate (%) of the RL policy vs. the Moco plan under perturbations
+- **K1** Extensor strength threshold (% of max. muscle force) where lifting and holding the cup fails
+- **K2** Minimum wrist assist torque (Nm) that restores the task, and whether a spring is enough
+- **K3** Wrist-muscle effort reduction (%) compared with no assistance
+- **K4** Success rate (%) of the RL policy vs. the Moco plan with a heavier cup, pushes and fatigue
 
 ## Milestones
 
@@ -41,8 +42,8 @@ what is the minimum hip or knee assistance that restores it?
 ## Planned structure
 
 ```
-route_a_moco/     OpenSim Moco sit-to-stand, weakness sweep, assistance optimisation
-route_b_rl/       MuJoCo/MyoSuite environment and PPO training
+route_a_moco/     OpenSim Moco cup task, weakness sweep, spring vs. motor
+route_b_rl/       MyoSuite myoHand environment and PPO training
 analysis/         Metrics and plots
 docs/             Proposal, reports, presentations
 ```
