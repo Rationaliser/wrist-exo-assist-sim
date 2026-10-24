@@ -47,8 +47,3 @@ route_b_rl/       MyoSuite myoHand environment and PPO training
 analysis/         Metrics and plots
 docs/             Proposal, reports, presentations
 ```
-
-## Team
-
-- [Member names]
-- Supervisor: [Supervisor name]
