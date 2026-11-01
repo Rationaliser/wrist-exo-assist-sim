@@ -1,0 +1,16 @@
+# Route A: OpenSim + Moco (Python bindings) from the official opensim-org channel.
+# OpenSim 4.6 (Apr 2026) ships linux-64 builds for Python 3.11/3.12/3.13 with numpy 2.4
+# (checked on anaconda.org/opensim-org/opensim, 2026-11-01). Moco is part of the package.
+# Create with:  conda env create -f env/environment-opensim.yml
+name: wrist-opensim
+channels:
+  - opensim-org
+  - conda-forge
+dependencies:
+  - python=3.12
+  - opensim=4.6
+  - numpy=2.4
+  - pandas
+  - matplotlib
+  - pyyaml
+  - pytest
