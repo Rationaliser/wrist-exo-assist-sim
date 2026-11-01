@@ -81,6 +81,10 @@ def make_study(cfg, model, info, num_intervals):
         effort.setWeightForControl("/forceset/" + r, rc["reserve_weight"])
     problem.addGoal(effort)
 
+    if info["kept_muscles"] and cfg.get("actuation", "muscles") != "torque":
+        # without this, initial activations are free and the solver exploits them (spike at t=0)
+        problem.addGoal(osim.MocoInitialActivationGoal("initial_activation"))
+
     track = osim.MocoStateTrackingGoal("wrist_track", task["track_weight"])
     track.setReference(osim.TableProcessor(reference_table(qpath, q0, q1, T, t_move)))
     problem.addGoal(track)

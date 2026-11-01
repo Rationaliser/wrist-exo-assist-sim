@@ -11,8 +11,8 @@ RESULTS_DIR = Path(os.environ.get("WRIST_RESULTS_DIR", REPO_ROOT / "results"))
 
 
 def load_config(path=None):
-    """Load the YAML config (default: config/baseline.yaml)."""
-    path = Path(path) if path else DEFAULT_CONFIG
+    """Load the YAML config (default: $WRIST_CONFIG, else config/baseline.yaml)."""
+    path = Path(path or os.environ.get("WRIST_CONFIG") or DEFAULT_CONFIG)
     with open(path) as f:
         return yaml.safe_load(f)
 
