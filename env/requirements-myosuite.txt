@@ -1,0 +1,7 @@
+# Route B: MyoSuite (MuJoCo) + Stable-Baselines3. Keep separate from the OpenSim env.
+# MyoSuite 3.0.0 supports Python 3.10-3.14 (README, checked 2026-11-01).
+# Create with:
+#   conda create -n wrist-myosuite python=3.12 -y
+#   conda run -n wrist-myosuite pip install -r env/requirements-myosuite.txt
+myosuite==3.0.0
+stable-baselines3>=2.7.1
