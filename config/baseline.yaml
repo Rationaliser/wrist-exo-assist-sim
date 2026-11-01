@@ -34,6 +34,12 @@ task:
   end_deg: 15.0
   duration_s: 1.0
   hold_fraction: 0.3                      # last 30 % of the motion is a hold at end_deg
+  track_weight: 100.0                     # weight of wrist-angle tracking (min-jerk move + hold reference)
+
+actuation: muscles                        # "muscles" (primary) or "torque" (fallback A)
+torque_actuator:                          # only for actuation: torque
+  optimal_force_nm: 5.0
+  bound: 1.0
 
 muscles:
   model: DeGrooteFregly2016

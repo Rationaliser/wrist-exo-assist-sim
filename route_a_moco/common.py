@@ -1,11 +1,13 @@
 """Shared helpers for Route A: config loading and repo paths."""
+import os
 from pathlib import Path
 
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = REPO_ROOT / "config" / "baseline.yaml"
-RESULTS_DIR = REPO_ROOT / "results"
+# WRIST_RESULTS_DIR lets tests/dry runs write elsewhere
+RESULTS_DIR = Path(os.environ.get("WRIST_RESULTS_DIR", REPO_ROOT / "results"))
 
 
 def load_config(path=None):
