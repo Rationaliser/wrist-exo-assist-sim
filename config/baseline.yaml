@@ -1,0 +1,57 @@
+# P2 baseline configuration (Route A, OpenSim Moco).
+# Coordinate / muscle / body names MUST come from results/model_inventory.md (Task 3);
+# do not edit them by guesswork.
+
+model:
+  # MoBL-ARMS dynamic upper limb (SimTK "upexdyn"); see models/README.md. Not in git.
+  path: models/MOBL_ARMS_41.osim          # TODO(Task 2): set to the file the user placed
+  source: "SimTK upexdyn, release 'MoBL-ARMS dynamic upper limb model - OpenSim 4.1+' (2021-02-22)"
+  licence: "Creative Commons ANC Use Agreement (per SimTK); not redistributed in this repo"
+  opensim_version: "4.6"
+
+names:                                    # TODO(Task 3): fill from model inventory
+  wrist_flexion: null
+  wrist_deviation: null
+  forearm_rotation: null
+  elbow_flexion: null
+  hand_body: null
+  wrist_extensors: []
+  wrist_flexors: []
+
+posture:                                  # locked joint angles (deg), chosen so gravity flexes the wrist
+  free_wrist_deviation: false
+  locked_deg: {}                          # TODO(Task 4): {coordinate_name: angle_deg}
+
+cup:
+  mass_kg: 0.3
+  # cylinder approximating a filled mug held in the palm
+  radius_m: 0.04
+  height_m: 0.10
+  offset_in_hand_m: [0.0, -0.08, 0.04]    # TODO(Task 4): grasp point in hand-body frame
+
+task:
+  start_deg: -30.0                        # wrist flexion angle sign convention: TODO(Task 3) verify
+  end_deg: 15.0
+  duration_s: 1.0
+  hold_fraction: 0.3                      # last 30 % of the motion is a hold at end_deg
+
+muscles:
+  model: DeGrooteFregly2016
+  ignore_tendon_compliance: true
+  ignore_passive_fiber_force: false
+  strength_factor: 1.0                    # hook for the P3 weakness sweep
+
+reserves:
+  optimal_force_nm: 1.0                   # small optimal force => large control => heavily penalised
+  bound: 50.0
+  effort_weight: 1.0                      # control effort weight; reserve controls get this x reserve_weight
+  reserve_weight: 1000.0
+
+solver:
+  num_mesh_intervals: 30
+  refine_mesh_intervals: 60
+  transcription: hermite-simpson
+  optim_convergence_tolerance: 1.0e-3
+  optim_constraint_tolerance: 1.0e-3
+  max_iterations: 2000
+  parallel: 4
