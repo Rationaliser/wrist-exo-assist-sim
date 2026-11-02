@@ -2,7 +2,7 @@
   "actuation": "muscles",
   "opensim_version": "4.6",
   "build": {
-    "source_model": "/home/rationaliser/Desktop/wrist-exo-assist-sim/models/planar_wrist_fallbackB.osim",
+    "source_model": "models/planar_wrist_fallbackB.osim",
     "free_coordinates": [
       "wrist_flexion"
     ],
@@ -25,8 +25,8 @@
       "success": true,
       "status": "Solve_Succeeded",
       "iterations": 162,
-      "solver_duration_s": 12.145543706,
-      "wall_time_s": 12.198500871658325,
+      "solver_duration_s": 12.160996717,
+      "wall_time_s": 12.184420108795166,
       "objective": 0.007678340594296105
     },
     {
@@ -34,8 +34,8 @@
       "success": true,
       "status": "Solve_Succeeded",
       "iterations": 24,
-      "solver_duration_s": 3.40310654,
-      "wall_time_s": 3.4378628730773926,
+      "solver_duration_s": 3.357044331,
+      "wall_time_s": 3.3853745460510254,
       "objective": 0.007642915712059229
     }
   ],

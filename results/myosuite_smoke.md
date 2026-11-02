@@ -4,7 +4,7 @@
 * Registry: 226 myo environments; 24 myoHand environments: `myoHandKeyTurnFixed-v0`, `myoHandKeyTurnRandom-v0`, `myoHandObjHoldFixed-v0`, `myoHandObjHoldRandom-v0`, `myoHandPenTwirlFixed-v0`, `myoHandPenTwirlRandom-v0`, `myoHandPose0Fixed-v0`, `myoHandPose1Fixed-v0`, `myoHandPose2Fixed-v0`, `myoHandPose3Fixed-v0`, `myoHandPose4Fixed-v0`, `myoHandPose5Fixed-v0`, `myoHandPose6Fixed-v0`, `myoHandPose7Fixed-v0`, `myoHandPose8Fixed-v0`, `myoHandPose9Fixed-v0`, `myoHandPoseFixed-v0`, `myoHandPoseRandom-v0`, `myoHandReachFixed-v0`, `myoHandReachRandom-v0`, `myoHandReorient100-v0`, `myoHandReorient8-v0`, `myoHandReorientID-v0`, `myoHandReorientOOD-v0`
 * Chosen: `myoHandObjHoldFixed-v0` (hand holds an object; includes the wrist)
 * Observation dim: (91,), action dim: (39,) (actions in [-1, 1])
-* Random rollout: 200 steps, seed 0, 0.38 s wall, 9 resets, mean reward -10.510, no errors
+* Random rollout: 200 steps, seed 0, 0.44 s wall, 9 resets, mean reward -10.510, no errors
 * Model: 24 joints, 39 actuators (muscles), timestep 0.002 s, frame skip 10
 
 ## Wrist exposure (needed for Route B)

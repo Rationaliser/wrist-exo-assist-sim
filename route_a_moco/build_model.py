@@ -21,7 +21,7 @@ from pathlib import Path
 import opensim as osim
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from common import RESULTS_DIR, load_config, model_path  # noqa: E402
+from common import REPO_ROOT, RESULTS_DIR, load_config, model_path  # noqa: E402
 
 log = logging.getLogger("build_model")
 
@@ -217,7 +217,7 @@ def build(cfg, strength_factor=None, verbose=True):
     out.initSystem()
 
     info = {
-        "source_model": str(src),
+        "source_model": str(src.relative_to(REPO_ROOT)) if src.is_relative_to(REPO_ROOT) else str(src),
         "free_coordinates": free,
         "welded_joints": weld,
         "removed_constraints": removed_constraints,
