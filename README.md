@@ -58,7 +58,12 @@ wrist-exo-assist-sim/
 │   ├── build_planar_model.py     # fallback B model, built in code
 │   ├── build_model.py            # processed model: welds, cup, wrist muscles, scale_strength(), reserves
 │   ├── solve_baseline.py         # Moco problem + solve, metrics, reserve check
-│   └── plot_results.py           # report figures
+│   ├── plot_results.py           # report figures
+│   ├── sweep_weakness.py         # K1: extensor weakness sweep + bisection (P3 preview)
+│   └── assist_study.py           # K2/K3: ideal motor vs torsional spring (P3 preview)
+├── analysis/
+│   ├── pipeline_diagram.py       # method-outline figure
+│   └── plot_k1.py                # K1 sweep figure
 ├── route_b_rl/
 │   └── smoke_test.py             # MyoSuite environment smoke test
 ├── results/                      # solutions (.sto), figures (.png), reports, SUMMARY.md
@@ -125,6 +130,16 @@ pytest
 ```
 
 `solve_baseline.py --torque-driven` runs fallback A (an ideal wrist torque actuator, no muscles).
+
+### 3b. P3 preview: K1 weakness sweep and K2/K3 assistance (fallback B shown; drop `WRIST_CONFIG` for MoBL-ARMS)
+
+```bash
+export WRIST_CONFIG=config/fallback_planar.yaml
+python route_a_moco/sweep_weakness.py --tag fallbackB                     # ~10 min
+python analysis/plot_k1.py --tag fallbackB --stamp "Fallback B"
+python route_a_moco/assist_study.py --tag fallbackB --weak 0.08 0.05 --pass-levels 1.0 0.3   # ~30 min
+python analysis/pipeline_diagram.py
+```
 
 ### 4. Route B smoke test
 

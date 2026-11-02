@@ -1,0 +1,52 @@
+{
+  "motor_effort_weight": 1.0,
+  "spring_rest_deg": -60.0,
+  "k2": [
+    {
+      "strength_factor": 0.08,
+      "unassisted_ok": false,
+      "motor_limit_min_Nm": 0.265625,
+      "motor_peak_used_Nm": 0.2656249990940838,
+      "spring_stiffness_min_Nm_per_rad": 0.28125,
+      "spring_peak_torque_Nm": 0.44178646691106466,
+      "spring_enough": true,
+      "bracket": {
+        "motor_max_Nm": 1.0,
+        "spring_max_Nm_per_rad": 2.0,
+        "steps": 6
+      }
+    },
+    {
+      "strength_factor": 0.05,
+      "unassisted_ok": false,
+      "motor_limit_min_Nm": 0.5625,
+      "motor_peak_used_Nm": 0.5624999953286894,
+      "spring_stiffness_min_Nm_per_rad": 0.6875,
+      "spring_peak_torque_Nm": 1.0799224746714913,
+      "spring_enough": true,
+      "bracket": {
+        "motor_max_Nm": 1.0,
+        "spring_max_Nm_per_rad": 2.0,
+        "steps": 6
+      }
+    }
+  ],
+  "k3": [
+    {
+      "strength_factor": 1.0,
+      "spring_stiffness_Nm_per_rad": 0.6875,
+      "effort_unassisted": 0.007605726798203656,
+      "effort_with_spring": 0.0013711095472873332,
+      "effort_reduction_pct": 81.972668968189,
+      "both_ok": true
+    },
+    {
+      "strength_factor": 0.3,
+      "spring_stiffness_Nm_per_rad": 0.6875,
+      "effort_unassisted": 0.1071897322970418,
+      "effort_with_spring": 0.014726848245231391,
+      "effort_reduction_pct": 86.26095249084057,
+      "both_ok": true
+    }
+  ]
+}

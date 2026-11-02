@@ -57,12 +57,35 @@ MoBL-ARMS in later only takes steps 1–3 under "Swapping in MoBL-ARMS" below.
 So with full strength, about **8 % extensor activation holds the 0.3 kg cup level**. K1 (P3) will
 find the strength factor at which this is no longer possible without reserve torque.
 
+## P3 preview (preliminary, fallback B): K1, K2, K3
+
+These go beyond the P2 work order. They were run on 2 Nov so the team can show early KPI
+trends, and they will be repeated on MoBL-ARMS.
+
+- **K1, weakness sweep** (`sweep_weakness.py`, `fallbackB_k1_sweep.{csv,png}`).
+  - Extensor max force was scaled from 100 % down to 4 %.
+  - A level fails if the solver fails, the reserve exceeds 10 % of the gravity torque, or the hold drifts more than 2°.
+  - **K1 is between 10.62 % and 10.75 % of unimpaired extensor force** (bisection).
+  - Peak extensor activation goes 0.11 (100 %) → 0.40 (30 %) → 1.0 (≤ 12 %).
+  - At the boundary, hold drift trips first. At 10 % the reserve is 15 % of the gravity torque; at 4 %, 194 %.
+  - The 4 % coarse solve hit the 2000-iteration limit, so it was counted as a solver failure. Every converged point also passes or fails consistently on reserve and drift.
+- **K2, smallest assist that restores the task** (`assist_study.py`, 6-step bisection, `fallbackB_assist_summary.json`).
+  - 8 % strength: ideal motor 0.27 Nm, or spring k = 0.28 Nm/rad (rest −60°, peak 0.44 Nm).
+  - 5 % strength: motor 0.56 Nm, or spring k = 0.69 Nm/rad (peak 1.08 Nm).
+  - **A spring is enough at both levels** in this task, but needs 1.6–1.9× the motor's peak torque.
+  - The unassisted 5 % solve hit the iteration limit, consistent with K1.
+- **K3, effort reduction.** The k = 0.69 Nm/rad spring reduces muscle effort (∫Σ excitation² dt) by **82 %** at 100 % strength and **86 %** at 30 % strength.
+- **Modelling choices behind these numbers.** Motor effort weight 1.0; spring rest angle −60°; same 1 s task. Stiffness and rest angle are not yet optimised (P3: `MocoParameter`).
+
 ## Figures (`results/`)
 
 1. `fallbackB_wrist_angle.png`: wrist angle vs time, target and hold window marked.
 2. `fallbackB_activations.png`: extensor and flexor activations vs time.
 3. `fallbackB_reserve_torque.png`: reserve torque next to the gravity torque at the wrist.
 4. `fallbackB_mean_activation.png`: mean activation per muscle.
+5. `fallbackB_k1_sweep.png`: K1 sweep (preliminary).
+6. `fallbackB_assist.png`: K2 motor vs spring and K3 effort reduction (preliminary).
+7. `pipeline_diagram.png`: method outline (Route A + Route B).
 
 ## Route B smoke test (`myosuite_smoke.md`)
 
@@ -92,7 +115,7 @@ find the strength factor at which this is no longer possible without reserve tor
 
 ## Next steps (P3)
 
-- **K1 weakness sweep.** Loop `strength_factor` over the extensors (for example 1.0 → 0.05). Record the solve status, reserve torque and hold error, and call it failure when reserve torque exceeds 10 % of the gravity torque or the solve fails.
-- **K2 and K3, spring vs motor.** Add a torsional spring (stiffness as a `MocoParameter`) and/or an ideal motor `CoordinateActuator` at the wrist. Optimise for minimum muscle effort and compare the effort reduction.
+- **K1 and K2/K3 on MoBL-ARMS.** The scripts exist (`sweep_weakness.py`, `assist_study.py`); re-run them on MoBL-ARMS, with a sensitivity check on cup mass and movement time.
+- **Optimise the spring.** Make stiffness and rest angle `MocoParameter`s instead of bisecting stiffness at a fixed rest angle, and test other daily-task postures.
 - **Re-run on MoBL-ARMS** and report fallback B and MoBL-ARMS side by side.
 - **Route B.** Export the Route A wrist trajectory as the reference for the PPO reward in `myoHandObjHold`.
