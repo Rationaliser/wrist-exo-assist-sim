@@ -1,0 +1,14 @@
+{
+  "criteria": {
+    "reserve_limit_pct_of_gravity": 10.0,
+    "hold_limit_deg": 2.0,
+    "solver_must_converge": true
+  },
+  "scaled_muscles": [
+    "EXT_lumped"
+  ],
+  "k1": {
+    "weakest_passing_factor": 0.1075,
+    "strongest_failing_factor": 0.1062
+  }
+}

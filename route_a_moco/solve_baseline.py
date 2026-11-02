@@ -53,7 +53,8 @@ def coord_path(model, name):
     return model.getCoordinateSet().get(name).getAbsolutePathString()
 
 
-def make_study(cfg, model, info, num_intervals):
+def make_study(cfg, model, info, num_intervals, control_weights=None):
+    """control_weights: optional {actuator path: effort weight} for extra actuators (e.g. assist)."""
     task = cfg["task"]
     q = cfg["names"]["wrist_flexion"]
     qpath = coord_path(model, q)
@@ -79,6 +80,8 @@ def make_study(cfg, model, info, num_intervals):
     effort = osim.MocoControlGoal("effort", rc["effort_weight"])
     for r in info["reserves"]:
         effort.setWeightForControl("/forceset/" + r, rc["reserve_weight"])
+    for path, w in (control_weights or {}).items():
+        effort.setWeightForControl(path, w)
     problem.addGoal(effort)
 
     if info["kept_muscles"] and cfg.get("actuation", "muscles") != "torque":
