@@ -41,6 +41,16 @@ plt.rcParams.update({
 })
 
 
+STAMP = ""  # provenance note printed in the corner of every figure (e.g. which fallback was used)
+
+
+def save(fig, out):
+    if STAMP:
+        fig.text(0.01, 1.08, STAMP, ha="left", va="bottom", fontsize=6.5, color=INK2, style="italic")
+    fig.savefig(out)
+    plt.close(fig)
+
+
 def read_sto(path):
     """Read an OpenSim .sto (header ... 'endheader', then a tab-separated table)."""
     with open(path) as f:
@@ -86,13 +96,13 @@ def fig_angle(df, cfg, qname, out):
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Wrist flexion angle (deg)\n(+ flexion, − extension)")
     ax.set_title("Wrist angle", loc="left")
-    fig.savefig(out)
-    plt.close(fig)
+    save(fig, out)
 
 
 def fig_activations(df, groups, colors, out):
     t = df["time"].to_numpy()
     fig, axes = plt.subplots(1, len(groups), figsize=(HALF_PAGE[0] * 1.9, HALF_PAGE[1]), sharey=True)
+    fig.subplots_adjust(wspace=0.4)
     axes = np.atleast_1d(axes)
     acts = {m: df[find_col(df, f"/{m}/activation")].to_numpy() for g in groups.values() for m in g}
     top = max(a.max() for a in acts.values()) * 1.1
@@ -112,8 +122,7 @@ def fig_activations(df, groups, colors, out):
         ax.set_xlim(t[0], t[-1] * 1.12)
     axes[0].set_ylabel("Activation (0–1)")
     axes[0].set_ylim(0, top)
-    fig.savefig(out)
-    plt.close(fig)
+    save(fig, out)
 
 
 def fig_reserve(df, grav, actuators, out, title):
@@ -130,8 +139,7 @@ def fig_reserve(df, grav, actuators, out, title):
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Torque about wrist flexion axis (Nm)\n(+ flexing)")
     ax.set_title(title, loc="left")
-    fig.savefig(out)
-    plt.close(fig)
+    save(fig, out)
 
 
 def fig_mean_activation(df, groups, out):
@@ -155,8 +163,7 @@ def fig_mean_activation(df, groups, out):
     ax.legend(handles, list(groups), frameon=False, ncol=len(groups), loc="lower left",
               bbox_to_anchor=(0, 1.0), borderaxespad=0.2, handlelength=1.0)
     ax.set_title("Mean activation per muscle", loc="left", pad=18)
-    fig.savefig(out)
-    plt.close(fig)
+    save(fig, out)
 
 
 def main():
@@ -172,6 +179,13 @@ def main():
     qname = cfg["names"]["wrist_flexion"]
     torque_driven = report["actuation"] == "torque"
     fallback = " [FALLBACK A: torque-driven]" if torque_driven else ""
+    global STAMP
+    notes = []
+    if "fallback" in str(cfg["model"].get("source", "")).lower():
+        notes.append("Fallback B: planar 2-muscle wrist model")
+    if torque_driven:
+        notes.append("Fallback A: torque-driven")
+    STAMP = " | ".join(notes)
     written = []
 
     p = RESULTS_DIR / f"{args.tag}_wrist_angle.png"

@@ -1,0 +1,54 @@
+{
+  "actuation": "muscles",
+  "opensim_version": "4.6",
+  "build": {
+    "source_model": "/home/rationaliser/Desktop/wrist-exo-assist-sim/models/planar_wrist_fallbackB.osim",
+    "free_coordinates": [
+      "wrist_flexion"
+    ],
+    "welded_joints": [],
+    "removed_constraints": [],
+    "removed_muscles": [],
+    "removed_other_forces": [],
+    "kept_muscles": [
+      "EXT_lumped",
+      "FLX_lumped"
+    ],
+    "reserves": [
+      "reserve_wrist_flexion"
+    ],
+    "strength_factor": 1.0
+  },
+  "runs": [
+    {
+      "label": "coarse N=30",
+      "success": true,
+      "status": "Solve_Succeeded",
+      "iterations": 162,
+      "solver_duration_s": 12.145543706,
+      "wall_time_s": 12.198500871658325,
+      "objective": 0.007678340594296105
+    },
+    {
+      "label": "refined N=60",
+      "success": true,
+      "status": "Solve_Succeeded",
+      "iterations": 24,
+      "solver_duration_s": 3.40310654,
+      "wall_time_s": 3.4378628730773926,
+      "objective": 0.007642915712059229
+    }
+  ],
+  "used_run": "refined N=60",
+  "metrics": {
+    "final_angle_deg": -14.999999999999998,
+    "hold_max_error_deg": 0.05740543107051131,
+    "gravity_torque_start_Nm": 0.3590062548803151,
+    "gravity_torque_end_Nm": 0.49650460147923803,
+    "gravity_torque_peak_abs_Nm": 0.49663103644891654,
+    "reserve_wrist_flexion_peak_abs_Nm": 0.00011848126902900049,
+    "reserve_wrist_flexion_rms_Nm": 2.6259313234885577e-05,
+    "reserve_wrist_flexion_peak_over_gravity_pct": 0.023857000536289977
+  },
+  "solution_file": "results/fallbackB_solution.sto"
+}
