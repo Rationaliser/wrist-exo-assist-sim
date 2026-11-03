@@ -144,16 +144,16 @@ pres.addSection({ title: "Introduction" });
     { text: "Guided by:", options: { bold: true, fontSize: 18, breakLine: true } },
     { text: "Prof. Hamidreza Heidari", options: { fontSize: 18 } },
   ], { x: 8.9, y: 5.55, w: 3.8, h: 0.9, valign: "bottom" });
-  s.addNotes("P2 milestone presentation. Today: literature map, method outline, the first working baseline simulation, and early previews of the KPIs K1-K3. All Route A numbers come from a simplified fallback wrist model because access to MoBL-ARMS (SimTK) was still pending; we say this upfront.");
+  s.addNotes("P2 milestone presentation. Today: literature map, method outline, the first working baseline simulation, and early previews of the KPIs K1-K3. The baseline runs on the MoBL-ARMS upper-limb model. The K1-K3 previews come from a simpler planar cross-check model, and we say so on those slides.");
 }
 
 // ---------------------------------------------------------------- 2 at a glance
 {
   const s = content("Introduction", "P2 at a Glance:");
   const rows = [
-    ["Literature map", "19 sources in 4 clusters: clinical problem, wrist devices, musculoskeletal optimal control, learning-based control", "Done", C.accent4],
+    ["Literature map", "20 sources in 4 clusters: clinical problem, wrist devices, musculoskeletal optimal control, learning-based control", "Done", C.accent4],
     ["Method outline", "Two-route pipeline (Moco plan and MyoSuite RL), KPIs K1–K4 made measurable", "Done", C.accent4],
-    ["Baseline simulation", "Moco cup lift-and-hold converges; muscles do all the work", "Fallback model", C.accent3],
+    ["Baseline simulation", "MoBL-ARMS cup lift-and-hold converges; the six wrist muscles do all the work", "Done", C.accent4],
     ["Bibliography", "All references checked online; list on the last slides", "Done", C.accent4],
   ];
   rows.forEach(([h, d, st, col], i) => {
@@ -165,10 +165,10 @@ pres.addSection({ title: "Introduction" });
     chip(s, 6.25, y + 0.12, 1.85, st, col);
   });
   stat(s, 8.75, 1.55, 3.98, "0.02 %", "peak reserve torque vs. gravity torque in the baseline (limit 10 %)");
-  stat(s, 8.75, 2.95, 3.98, "3.4 s", "refined Moco solve (60 mesh intervals, 24 iterations)");
+  stat(s, 8.75, 2.95, 3.98, "≈ 10 %", "ECRB / ECRL activation that holds the 0.3 kg cup (MoBL-ARMS)");
   stat(s, 8.75, 4.35, 3.98, "≈ 10.7 %", "extensor strength below which the task fails (K1 preview)", C.accent3);
-  text(s, "Numbers from the planar fallback model; MoBL-ARMS pending.", { x: 8.75, y: 5.8, w: 3.98, h: 0.6, fontSize: 12, italic: true, color: C.text2, margin: 0 });
-  s.addNotes("Four P2 deliverables. The baseline simulation works, but on our fallback model: a planar wrist with one lumped extensor and one lumped flexor. MoBL-ARMS needs a SimTK account that was still waiting for approval. The pipeline is model-agnostic, so swapping MoBL-ARMS in is a config change. The three numbers on the right are the headline results.");
+  text(s, "Baseline: MoBL-ARMS. K1 preview: planar cross-check model.", { x: 8.75, y: 5.8, w: 3.98, h: 0.6, fontSize: 12, italic: true, color: C.text2, margin: 0 });
+  s.addNotes("Four P2 deliverables, all done. The baseline runs on MoBL-ARMS: reserve torque is 0.02 % of the gravity torque, so the muscles do all the work, and about 10 % activation of ECRB and ECRL holds the cup. The K1 threshold of about 10.7 % comes from a planar cross-check model; the full sweep on MoBL-ARMS is P3 work because each MoBL-ARMS solve takes about 45 minutes.");
 }
 
 // ---------------------------------------------------------------- 3 literature map
@@ -179,7 +179,7 @@ pres.addSection({ title: "Literature" });
   const clusters = [
     { x: 0.6, y: 1.45, title: "Clinical problem (why)", refs: ["Nijland 2010: early finger extension predicts arm recovery after stroke", "Wrist drop: weak extensors, hand falls under gravity"], ax: 4.3, ay: 2.6, bx: cx, by: cy + 0.35 },
     { x: 9.03, y: 1.45, title: "Wrist assist devices (what exists)", refs: ["Hussain 2020: review of wrist rehabilitation robots", "Lambelet 2017, 2020: eWrist, 1-DoF wrist exo, < 500 g", "KhalilianMotamed Bonab 2024: exosuit designed in OpenSim"], ax: 9.03, ay: 2.6, bx: cx + cw, by: cy + 0.35 },
-    { x: 0.6, y: 4.1, title: "Optimal control (Route A)", refs: ["Delp 2007, Seth 2018: OpenSim", "Dembia 2020: OpenSim Moco", "Holzbaur 2005, Saul 2015: MoBL-ARMS", "De Groote 2016: muscle model"], ax: 4.3, ay: 4.9, bx: cx, by: cy + ch - 0.35 },
+    { x: 0.6, y: 4.1, title: "Optimal control (Route A)", refs: ["Delp 2007, Seth 2018: OpenSim", "Dembia 2020: OpenSim Moco", "Holzbaur 2005, Saul 2015, McFarland 2019: MoBL-ARMS", "De Groote 2016: muscle model"], ax: 4.3, ay: 4.9, bx: cx, by: cy + ch - 0.35 },
     { x: 9.03, y: 4.1, title: "Learning-based control (Route B)", refs: ["Todorov 2012: MuJoCo", "Caggiano 2022, Wang 2022: MyoSuite, MyoSim", "Schulman 2017: PPO", "Luo 2024, Chavarrías 2025: RL exo control"], ax: 9.03, ay: 4.9, bx: cx + cw, by: cy + ch - 0.35 },
   ];
   clusters.forEach((c) => {
@@ -204,14 +204,14 @@ pres.addSection({ title: "Literature" });
 {
   const s = content("Literature", "From Literature to Our Pipeline:");
   table(s, ["Source", "What it gives us", "Where we use it"], [
-    ["Holzbaur 2005; Saul 2015", "MoBL-ARMS upper-limb model and muscle parameters", "Route A model (pending SimTK access)"],
+    ["Holzbaur 2005; Saul 2015; McFarland 2019", "MoBL-ARMS upper-limb model (OpenSim 4.1 version)", "Route A model for the baseline"],
     ["Dembia 2020 (Moco)", "Direct-collocation optimal control", "Baseline solve, K1–K3 studies"],
     ["De Groote 2016", "Fast, robust muscle formulation", "DeGrooteFregly muscles in every solve"],
-    ["Wang 2022; Caggiano 2022", "MyoHand model (from MoBL-ARMS) and MyoSuite tasks", "Fallback muscle forces / moment arms; Route B environment"],
+    ["Wang 2022; Caggiano 2022", "MyoHand model (from MoBL-ARMS) and MyoSuite tasks", "Route B environment; planar cross-check model"],
     ["Lambelet 2017, 2020; Hussain 2020", "A 1-DoF wrist flexion/extension exo is wearable and realistic", "Assist modelled as torque at the wrist axis"],
     ["Schulman 2017; Raffin 2021", "PPO and Stable-Baselines3", "Route B policy training (P3/P4)"],
   ], [3.6, 4.45, 4.08], { y: 1.5, fontSize: 14, rowH: [0.5, 0.72, 0.6, 0.6, 0.82, 0.82, 0.6] });
-  s.addNotes("Each source has a concrete job in our pipeline. MoBL-ARMS is the planned model. Moco solves the optimal control problem. The De Groote muscle model is what Moco recommends. MyoSim/MyoSuite gives Route B its environment and, while MoBL-ARMS is pending, the muscle forces and moment arms for our fallback model (MyoHand is derived from MoBL-ARMS). The eWrist papers justify modelling the device as a single torque at the wrist flexion/extension axis.");
+  s.addNotes("Each source has a concrete job in our pipeline. MoBL-ARMS (Holzbaur, Saul, McFarland) is our Route A model. Moco solves the optimal control problem. The De Groote muscle model is what Moco recommends. MyoSim/MyoSuite gives Route B its environment and the muscle data for our planar cross-check model (MyoHand is derived from MoBL-ARMS). The eWrist papers justify modelling the device as a single torque at the wrist flexion/extension axis.");
 }
 
 // ---------------------------------------------------------------- 5 method outline
@@ -228,21 +228,22 @@ pres.addSection({ title: "Method" });
 
 // ---------------------------------------------------------------- 6 model and task
 {
-  const s = content("Method", "Simulation Model and Task:");
-  img(s, "fallbackB_model_schematic.png", 0.5, 1.55, 7.3, 1.724, "Planar wrist model: fixed forearm, hand on a pin joint, cup in the hand, lumped extensor and flexor, gravity flexing the wrist.");
+  const s = content("Method", "Model and Task: MoBL-ARMS:");
   text(s, bullets([
-    "Forearm fixed, horizontal, palm down: gravity flexes the wrist (wrist drop)",
-    "Hand 0.45 kg (Winter 2009) plus a 0.3 kg cup",
-    "One lumped extensor (ECRL + ECRB + ECU) and one flexor (FCR + FCU)",
-    "Forces and moment arms from MyoHand (derived from MoBL-ARMS)",
-    "DeGroote–Fregly muscles, rigid tendons",
-  ], 14), { x: 8.05, y: 1.55, w: 4.68, h: 3.6, margin: 0 });
-  card(s, 8.05, 4.35, 4.68, 1.3);
+    "MoBL-ARMS upper limb (OpenSim 4.1 version, torso fixed)",
+    "Arm at the side, elbow 90°, forearm pronated (palm down): gravity flexes the wrist",
+    "Wrist flexion free; deviation braced at 0°; 9 joints welded",
+    "6 wrist muscles: ECRL, ECRB, ECU, FCR, FCU, PL (DeGroote–Fregly, rigid tendon)",
+    "0.3 kg cup in the hand: gravity torque 0.37–0.54 Nm",
+  ], 15), { x: 0.6, y: 1.55, w: 6.3, h: 3.9, margin: 0 });
+  card(s, 0.6, 4.4, 6.3, 1.25);
   text(s, [
-    { text: "Fallback B. ", options: { bold: true } },
-    { text: "MoBL-ARMS download was pending SimTK account approval. Same pipeline; swapping it in is a config change." },
-  ], { x: 8.25, y: 4.45, w: 4.3, h: 1.1, fontSize: 14, valign: "middle", margin: 0 });
-  s.addNotes("The fallback model: a fixed forearm, palm down, and a hand on one hinge joint. Gravity torque at the wrist is 0.36 Nm at the start and 0.50 Nm at the target, checked by hand: hand 0.25 Nm plus cup 0.24 Nm at 0 degrees. Muscle forces and moment arms come from the MyoHand model, which is itself derived from MoBL-ARMS. Fibre and tendon lengths are assumptions and are flagged as such.");
+    { text: "Model fixes we needed: ", options: { bold: true } },
+    { text: "exact-pose welds, a frozen moving path point (FCU) and a deviation brace; all checked in tests." },
+  ], { x: 0.8, y: 4.47, w: 5.9, h: 1.1, fontSize: 13, valign: "middle", margin: 0 });
+  img(s, "fallbackB_model_schematic.png", 7.25, 1.6, 5.48, 1.724, "Task schematic: fixed forearm, hand on a wrist joint, cup in the hand, extensor and flexor, gravity flexing the wrist.");
+  text(s, "Task schematic, drawn on the planar cross-check model (two lumped muscles) used to verify the pipeline.", { x: 7.25, y: 4.95, w: 5.48, h: 0.7, fontSize: 12, italic: true, color: C.text2, margin: 0 });
+  s.addNotes("We use the MoBL-ARMS upper-limb model, the version for OpenSim 4.1 with the torso fixed. The arm is at the side with the elbow at 90 degrees and the forearm pronated, palm down, so gravity pulls the hand into flexion. Only wrist flexion moves; deviation is held at 0 by an ideal brace. We keep the six muscles that move the wrist; the finger muscles are assumed busy holding the cup. The cup adds about 0.23 Nm, giving 0.37 Nm at the start and 0.54 Nm at the target. MoBL-ARMS needed three fixes for Moco, all verified: welds that keep the exact posture, freezing FCU's moving path point, and bracing deviation. The schematic shows the task on our simpler planar cross-check model.");
 }
 
 // ---------------------------------------------------------------- 7 Moco problem
@@ -268,23 +269,23 @@ pres.addSection({ title: "Method" });
 pres.addSection({ title: "Results" });
 {
   const s = content("Results", "Baseline Result (100 % Strength):");
-  img(s, "fallbackB_wrist_angle.png", 0.85, 1.45, 4.55, 1.159, "Wrist angle versus time: from +30 to -15 degrees, then held.");
-  img(s, "fallbackB_reserve_torque.png", 5.85, 1.45, 5.3, 1.357, "Reserve torque stays at zero while gravity torque rises from 0.36 to 0.50 Nm.");
-  stat(s, 0.6, 5.55, 3.9, "Converged", "3.4 s, 24 iterations on the 60-interval mesh", C.accent4, 1.25);
-  stat(s, 4.72, 5.55, 3.9, "−15.00°", "target reached; held within 0.06°", C.accent1, 1.25);
+  img(s, "baseline_wrist_angle.png", 0.85, 1.45, 5.3, 1.335, "MoBL-ARMS wrist angle versus time: from +30 to -15 degrees, then held.");
+  img(s, "baseline_reserve_torque.png", 6.6, 1.45, 5.75, 1.454, "MoBL-ARMS: reserve torque stays at zero while gravity torque rises from 0.37 to 0.54 Nm.");
+  stat(s, 0.6, 5.55, 3.9, "Converged", "both meshes; refined: 233 iterations, 28 min", C.accent4, 1.25);
+  stat(s, 4.72, 5.55, 3.9, "−15.00°", "target reached; held within 0.11°", C.accent1, 1.25);
   stat(s, 8.83, 5.55, 3.9, "0.02 %", "peak reserve / gravity torque: muscles do the work", C.accent1, 1.25);
-  s.addNotes("The baseline converges: coarse mesh 162 iterations in 12 s, refined mesh 24 iterations in 3.4 s. The wrist reaches -15 degrees and holds within 0.06 degrees. Peak reserve torque is 0.00012 Nm, 0.02 % of the 0.50 Nm gravity torque, far below the 10 % limit, so the muscles alone do the task.");
+  s.addNotes("MoBL-ARMS baseline: the coarse mesh converged in 224 iterations (18 min), the refined mesh in 233 iterations (28 min). The wrist reaches -15 degrees and holds within 0.11 degrees. Peak reserve torque is 0.00013 Nm, 0.02 % of the 0.54 Nm gravity torque, far below the 10 % limit, so the muscles alone do the task. The planar cross-check model gives the same picture: 0.02 % reserve, gravity 0.36-0.50 Nm.");
 }
 
 // ---------------------------------------------------------------- 9 muscle activity
 {
   const s = content("Results", "Muscle Activity:");
-  img(s, "fallbackB_activations.png", 0.6, 1.6, 8.4, 2.132, "Extensor activation about 0.08 during the hold; flexor at its minimum 0.01.");
-  text(s, "Extensor works to lift and hold; flexor stays at the model's minimum activation (no co-contraction needed).", { x: 0.6, y: 5.65, w: 8.4, h: 0.7, fontSize: 14, color: C.text2, margin: 0 });
-  stat(s, 9.35, 1.6, 3.38, "≈ 8 %", "extensor activation holds the 0.3 kg cup level", C.accent2, 1.55);
-  stat(s, 9.35, 3.4, 3.38, "0.01", "flexor activation (model minimum)", C.accent3, 1.55);
+  img(s, "baseline_activations.png", 0.6, 1.5, 8.4, 1.973, "MoBL-ARMS: ECRB 0.11, ECRL 0.09, ECU 0.03 activation during the hold; FCR, FCU and PL at their minimum 0.01.");
+  text(s, "ECRB and ECRL do most of the work, ECU helps; the flexors stay at their minimum activation.", { x: 0.6, y: 5.85, w: 8.4, h: 0.5, fontSize: 14, color: C.text2, margin: 0 });
+  stat(s, 9.35, 1.6, 3.38, "≈ 10 %", "ECRB / ECRL activation holds the 0.3 kg cup level", C.accent2, 1.55);
+  stat(s, 9.35, 3.4, 3.38, "0.01", "FCR, FCU, PL activation (model minimum)", C.accent3, 1.55);
   text(s, "Starting point for K1: how much weaker can the extensor get?", { x: 9.35, y: 5.2, w: 3.38, h: 1.1, fontSize: 14, italic: true, margin: 0 });
-  s.addNotes("At full strength the extensor needs only about 8 % activation to hold the cup level; peak 0.11 during the lift. The flexor stays at its minimum activation of 0.01. This headroom is what the weakness sweep (K1) eats into.");
+  s.addNotes("At full strength MoBL-ARMS holds the cup with about 10 % activation of ECRB and 9 % of ECRL, while ECU helps at about 3 %. The flexors stay at their minimum activation of 0.01. The planar cross-check model needs 8 % on its single lumped extensor, which is consistent. This headroom is what the weakness sweep (K1) eats into.");
 }
 
 // ---------------------------------------------------------------- 10 K1
@@ -295,9 +296,9 @@ pres.addSection({ title: "Results" });
   text(s, bullets([
     "Activation saturates at 1.0 below ~12 %",
     "Threshold found by bisection: 10.62–10.75 %",
-    "Preview on the fallback model; final K1 on MoBL-ARMS in P3",
+    "Preview on the planar cross-check model; final K1 on MoBL-ARMS in P3",
   ], 14), { x: 9.35, y: 3.4, w: 3.38, h: 2.9, margin: 0 });
-  s.addNotes("We scale the extensor's maximum force from 100 % down to 4 % and re-solve each time. A level fails if the solver fails, reserve torque exceeds 10 % of gravity torque, or the hold drifts more than 2 degrees. Bisection puts K1 between 10.62 % and 10.75 %. At the boundary the hold drift trips first. At 4 % the coarse solve hit its iteration limit; that level fails on every criterion anyway. This is a model result, not a clinical number: it depends on hand and cup mass, moment arms and the 1 s movement time.");
+  s.addNotes("This preview uses the planar cross-check model, which matches the MoBL-ARMS baseline (gravity torque, activations, reserve) but solves in seconds instead of 45 minutes. We scale the extensor's maximum force from 100 % down to 4 % and re-solve each time. A level fails if the solver fails, reserve torque exceeds 10 % of gravity torque, or the hold drifts more than 2 degrees. Bisection puts K1 between 10.62 % and 10.75 %. At the boundary the hold drift trips first. At 4 % the coarse solve hit its iteration limit; that level fails on every criterion anyway. This is a model result, not a clinical number: it depends on hand and cup mass, moment arms and the 1 s movement time.");
 }
 
 // ---------------------------------------------------------------- 11 K2/K3
@@ -307,7 +308,7 @@ pres.addSection({ title: "Results" });
   stat(s, 9.35, 1.6, 3.38, "0.27 Nm", "motor that restores the task at 8 % strength (0.56 Nm at 5 %)", C.accent2, 1.5);
   stat(s, 9.35, 3.25, 3.38, "1.6–1.9×", "spring peak torque vs. motor: a spring is enough, but must be stronger", C.accent3, 1.5);
   stat(s, 9.35, 4.9, 3.38, "82–86 %", "less muscle effort with the spring when the task still works", C.accent1, 1.5);
-  s.addNotes("K2: at strength levels where the task fails (8 % and 5 %), bisection finds the smallest assist that restores it. An ideal motor needs a 0.27 Nm limit at 8 % and 0.56 Nm at 5 %. A linear spring (rest angle -60 degrees) also works, with stiffness 0.28 and 0.69 Nm/rad, but its peak torque is 1.6-1.9 times higher because a spring pushes hardest in the flexed start position, where gravity is weakest. K3: that spring cuts muscle effort by 82 % at full strength and 86 % at 30 % strength. Preliminary: motor weight and spring rest angle are modelling choices; P3 will optimise them.");
+  s.addNotes("Again on the planar cross-check model. K2: at strength levels where the task fails (8 % and 5 %), bisection finds the smallest assist that restores it. An ideal motor needs a 0.27 Nm limit at 8 % and 0.56 Nm at 5 %. A linear spring (rest angle -60 degrees) also works, with stiffness 0.28 and 0.69 Nm/rad, but its peak torque is 1.6-1.9 times higher because a spring pushes hardest in the flexed start position, where gravity is weakest. K3: that spring cuts muscle effort by 82 % at full strength and 86 % at 30 % strength. Preliminary: motor weight and spring rest angle are modelling choices; P3 will optimise them.");
 }
 
 // ---------------------------------------------------------------- 12 Route B
@@ -339,21 +340,22 @@ pres.addSection({ title: "Outlook" });
 {
   const s = content("Outlook", "Limitations and Validity:");
   table(s, ["Limitation", "Effect", "Plan"], [
-    ["Planar fallback model (MoBL-ARMS pending)", "Absolute numbers are model-specific", "Re-run everything on MoBL-ARMS"],
+    ["K1–K3 previews on the planar model", "Thresholds are model-specific", "Re-run on MoBL-ARMS (≈45 min per solve)"],
+    ["Wrist deviation braced at 0°", "Brace takes radial side effects (0.49 Nm)", "Test with deviation free"],
     ["Assumed fibre and tendon lengths", "K1 value may shift", "Sensitivity analysis in P3"],
     ["Hold enforced by a soft tracking goal", "Kinematics partly prescribed", "Compare with a purely predictive variant"],
     ["Spring rest angle and motor weight fixed", "K2/K3 depend on these choices", "Optimise them as Moco parameters"],
     ["Generic adult, one 1 s task", "Not a clinical prediction", "State as relative findings (P1 ethics)"],
-  ], [4.3, 3.7, 4.13], { y: 1.5, fontSize: 14, rowH: [0.52, 0.72, 0.72, 0.72, 0.72, 0.72] });
-  s.addNotes("We are explicit about what the numbers mean. They are relative findings from a simplified generic model. The two biggest items: MoBL-ARMS replaces the fallback model as soon as SimTK access is approved, and a sensitivity analysis on the assumed muscle parameters, cup mass and movement time tells us how solid the 10.7 % threshold is.");
+  ], [4.3, 3.7, 4.13], { y: 1.5, fontSize: 14, rowH: [0.52, 0.7, 0.7, 0.7, 0.7, 0.7, 0.7] });
+  s.addNotes("We are explicit about what the numbers mean. They are relative findings from a generic model. The biggest items: the K1-K3 previews must be repeated on MoBL-ARMS, deviation is braced in the baseline, and a sensitivity analysis on the assumed muscle parameters, cup mass and movement time tells us how solid the 10.7 % threshold is.");
 }
 
 // ---------------------------------------------------------------- 14 next steps
 {
   const s = content("Outlook", "Next Steps (P3):");
   const steps = [
-    ["MoBL-ARMS swap", "inventory, posture, baseline re-run", "on SimTK approval"],
-    ["Final K1 + sensitivity", "cup mass, speed, muscle parameters", "P3 · 18 Nov"],
+    ["K1 on MoBL-ARMS", "coarse-mesh sweep with warm starts", "P3 · 18 Nov"],
+    ["Sensitivity", "cup mass, speed, deviation free", "P3 · 18 Nov"],
     ["Spring vs. motor", "stiffness and rest angle as Moco parameters", "P3 · 2 Dec"],
     ["Route B training", "PPO in MyoSuite, Moco-guided reward", "Weeks 48–50"],
     ["Robustness (K4)", "heavier cup, pushes, fatigue", "P4 · 16 Dec"],
@@ -365,14 +367,14 @@ pres.addSection({ title: "Outlook" });
     badge(s, x, cyc, i + 1, d);
     text(s, h, { x: x - 0.05, y: cyc + 0.95, w: 2.35, h: 0.45, fontSize: 17, bold: true, margin: 0 });
     text(s, dsc, { x: x - 0.05, y: cyc + 1.45, w: 2.25, h: 0.9, fontSize: 14, color: C.text2, margin: 0 });
-    chip(s, x - 0.05, cyc + 2.5, 1.95, when, i === 0 ? C.accent3 : C.accent1);
+    chip(s, x - 0.05, cyc + 2.5, 1.95, when, C.accent1);
   });
   card(s, 0.6, 5.75, 12.13, 0.85);
   text(s, [
     { text: "Already in place: ", options: { bold: true } },
-    { text: "sweep and assist scripts, tests and figures run unchanged on MoBL-ARMS (config switch)." },
+    { text: "MoBL-ARMS baseline, sweep and assist scripts, tests and figures; P3 re-runs them on MoBL-ARMS." },
   ], { x: 0.85, y: 5.8, w: 11.7, h: 0.75, fontSize: 14, valign: "middle", margin: 0 });
-  s.addNotes("Next: swap in MoBL-ARMS as soon as SimTK approves, then the final K1 sweep with a sensitivity analysis for P3 on 18 Nov, the optimised spring-vs-motor study for 2 Dec, Route B training in weeks 48-50, and the robustness comparison K4 for the P4 demo on 16 Dec. Most of the code for these steps already exists and was tested on the fallback model.");
+  s.addNotes("Next: the K1 sweep on MoBL-ARMS (coarse mesh, warm starts) and a sensitivity analysis for P3 on 18 Nov, the optimised spring-vs-motor study for 2 Dec, Route B training in weeks 48-50, and the robustness comparison K4 for the P4 demo on 16 Dec. Most of the code for these steps already exists and was tested on the fallback model.");
 }
 
 // ---------------------------------------------------------------- 15/16 bibliography
@@ -389,6 +391,7 @@ const refs = [
   "Dembia, C. L., et al. (2020). OpenSim Moco: Musculoskeletal optimal control. PLOS Computational Biology, 16(12), e1008493.",
   "Holzbaur, K. R. S., Murray, W. M., & Delp, S. L. (2005). A model of the upper extremity for simulating musculoskeletal surgery and analyzing neuromuscular control. Annals of Biomedical Engineering, 33(6), 829–840.",
   "Saul, K. R., et al. (2015). Benchmarking of dynamic simulation predictions in two software platforms using an upper limb musculoskeletal model. Computer Methods in Biomechanics and Biomedical Engineering.",
+  "McFarland, D. C., McCain, E. M., Poppo, M. N., & Saul, K. R. (2019). Spatial dependency of glenohumeral joint stability during dynamic unimanual and bimanual pushing and pulling. Journal of Biomechanical Engineering. doi:10.1115/1.4043035",
   "De Groote, F., Kinney, A. L., Rao, A. V., & Fregly, B. J. (2016). Evaluation of direct collocation optimal control problem formulations for solving the muscle redundancy problem. Annals of Biomedical Engineering. doi:10.1007/s10439-016-1591-9",
   "Winter, D. A. (2009). Biomechanics and Motor Control of Human Movement (4th ed.). Wiley.",
   "Todorov, E., Erez, T., & Tassa, Y. (2012). MuJoCo: A physics engine for model-based control. Proc. IEEE/RSJ IROS, 5026–5033.",
