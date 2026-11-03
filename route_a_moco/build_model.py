@@ -1,11 +1,11 @@
-"""Task 4a: build the processed wrist model used by the baseline Moco solve.
+"""Build the processed wrist model used by the baseline Moco solve.
 
-Steps (all names come from config/baseline.yaml, which is filled from the model inventory):
-  1. set the "locked" posture as default coordinate values and replace every joint that has
-     no free coordinate with a WeldJoint (Moco does not accept locked coordinates; in
-     OpenSim 4.6 ModOpReplaceJointsWithWelds keeps the default pose);
-  2. weld a cup body to the hand;
-  3. keep only muscles that span the wrist;
+Steps (names come from the config, which is filled from the model inventory):
+  1. set the posture as default coordinate values, then replace every joint without a free
+     coordinate by a WeldJoint at that posture (Moco does not accept locked coordinates);
+     coordinates that share a joint with a free one are braced instead;
+  2. freeze moving path points that depend on welded coordinates;
+  3. keep only the configured wrist muscles and weld a cup body to the hand;
   4. scale_strength() hook for the weakness sweep;
   5. DeGrooteFregly2016 muscles (rigid tendon) and penalised reserve actuators.
 
@@ -322,7 +322,7 @@ def build(cfg, strength_factor=None, verbose=True):
         scale_strength(model, cfg["names"]["wrist_extensors"], factor)
 
     torque_driven = cfg.get("actuation", "muscles") == "torque"
-    if torque_driven:  # fallback A: one ideal torque actuator per free coordinate, no muscles
+    if torque_driven:  # torque-driven variant: one ideal torque actuator per free coordinate, no muscles
         tc = cfg.get("torque_actuator", {"optimal_force_nm": 5.0, "bound": 1.0})
         for q in free:
             ca = osim.CoordinateActuator(q)

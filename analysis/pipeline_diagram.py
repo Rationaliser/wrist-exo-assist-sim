@@ -45,7 +45,7 @@ def main():
     ax.text(0.2, yb + H + 0.22, "Route B — MuJoCo + MyoSuite (secondary)", fontsize=9.5, fontweight="bold", color=ROUTE_B)
 
     a = [
-        ("Model", "MoBL-ARMS (SimTK)\nor fallback B: planar\nwrist, 2 lumped muscles"),
+        ("Model", "MoBL-ARMS (SimTK);\nplanar 2-muscle wrist\nfor fast cross-checks"),
         ("Inspect", "inventory of coordinates,\nmuscles, bodies\n→ names into config"),
         ("Build", "weld posture (palm down)\n0.3 kg cup, wrist muscles\nDGF muscles, reserves"),
         ("Moco problem", "+30° → −15°, hold\nmin. effort + tracking\nreserves ×1000 penalty"),

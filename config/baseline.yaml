@@ -1,6 +1,6 @@
 # P2 baseline configuration (Route A, OpenSim Moco).
-# Coordinate / muscle / body names MUST come from results/model_inventory.md (Task 3);
-# do not edit them by guesswork.
+# Coordinate, muscle and body names are taken from results/model_inventory.md
+# (written by route_a_moco/inspect_model.py).
 
 model:
   # MoBL-ARMS dynamic upper limb (SimTK "upexdyn"); see models/README.md. Not in git.
@@ -49,7 +49,7 @@ task:
   hold_fraction: 0.3                      # last 30 % of the motion is a hold at end_deg
   track_weight: 100.0                     # weight of wrist-angle tracking (min-jerk move + hold reference)
 
-actuation: muscles                        # "muscles" (primary) or "torque" (fallback A)
+actuation: muscles                        # "muscles" or "torque" (ideal wrist actuator, no muscles)
 torque_actuator:                          # only for actuation: torque
   optimal_force_nm: 5.0
   bound: 1.0

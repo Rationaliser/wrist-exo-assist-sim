@@ -1,4 +1,4 @@
-"""Task 7: MyoSuite smoke test (Route B, wrist-myosuite env). No training.
+"""MyoSuite smoke test (Route B, wrist-myosuite env). No training.
 
 * lists the registered myo environments (read from the registry, not guessed)
 * picks a myoHand environment that includes the wrist

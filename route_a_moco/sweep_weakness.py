@@ -1,4 +1,4 @@
-"""K1 (P3 preview): wrist-extensor weakness sweep.
+"""K1: wrist-extensor weakness sweep.
 
 Scales the max isometric force of the configured wrist extensors (scale_strength hook) and
 re-solves the baseline cup lift-and-hold problem at each strength factor. A factor "fails" when

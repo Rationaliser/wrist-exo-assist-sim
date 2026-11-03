@@ -1,129 +1,125 @@
-# P2 baseline simulation: summary
+# P2 baseline simulation: results summary
 
-Status as of 3 Nov 2026 (evening). **The Route A baseline now runs on MoBL-ARMS** (SimTK access
-approved on 3 Nov). It converged, and the six MoBL-ARMS wrist muscles do all of the work.
+3 November 2026
 
-The planar **fallback B** model (built on 2 Nov while access was pending) stays in the repository
-as a cross-check. **The K1–K3 previews are still fallback-B results**: a full sweep on MoBL-ARMS
-takes many hours at about 45 min per solve, so it is P3 work.
+The Route A baseline runs on the MoBL-ARMS upper-limb model. The wrist lifts a 0.3 kg cup from a
+dropped position and holds it level, and the six wrist muscles do all of the work (the penalised
+reserve actuator stays at 0.02 % of the gravity torque).
 
-## What was built
+A planar two-muscle wrist model is kept next to MoBL-ARMS. It reproduces the MoBL-ARMS baseline
+closely and solves in seconds instead of about 45 minutes, so the first K1–K3 studies were run on
+it. Those numbers are early results and will be repeated on MoBL-ARMS in P3.
 
-| Part | Status |
+## Setup
+
+- OpenSim 4.6 with Moco (conda env `wrist-opensim`, Python 3.12).
+- MyoSuite 3.0.0, MuJoCo 3.17 and Stable-Baselines3 2.9.2 (env `wrist-myosuite`, Python 3.12).
+- Model: `MOBL_ARMS_fixed_41.osim` from SimTK project upexdyn (torso fixed, Millard muscles matched
+  to the Schutte curves). Cite Saul et al. (2015) as modified by McFarland et al. (2019). The model
+  is not in git; see `models/README.md`.
+
+## Model preparation
+
+Names were read from the model (`model_inventory.md`): wrist flexion `flexion` (+ = flexion),
+deviation `deviation` (+ = ulnar), forearm rotation `pro_sup` (+90° = pronated), hand body `hand`.
+In MoBL-ARMS the wrist rotation is split over two joints: coupler constraints drive
+`wrist_hand_r3` (about half of the flexion angle) and `wrist_hand_r1` from flexion and deviation.
+
+`build_model.py` then:
+
+1. Sets the posture: arm at the side, elbow 90°, forearm pronated (palm down), deviation 0°. With
+   the palm down, gravity pulls the hand into flexion.
+2. Welds the 9 joints between the thorax and the wrist, using the transforms of the assembled
+   posture, and checks that the hand does not move. OpenSim's `ModOpReplaceJointsWithWelds` lost
+   this posture on MoBL-ARMS (the hand ended up hanging down), so it is not used.
+3. Freezes FCU's moving path point (`FCU-P2`, which follows `pro_sup`) at its posture location.
+   Without this OpenSim crashes once `pro_sup` is welded.
+4. Holds deviation at 0° with fixed state bounds and a nearly free `brace_deviation` actuator.
+   A constant coupler constraint pinned the wrong coordinate in OpenSim 4.6's assembler.
+5. Keeps ECRL, ECRB, ECU, FCR, FCU and PL. The extrinsic finger muscles also cross the wrist, but
+   they are assumed to be busy holding the cup; they can be added back in the config.
+6. Replaces the muscles with DeGroote–Fregly muscles (rigid tendons) and adds one penalised reserve
+   on wrist flexion.
+7. Attaches the cup (0.3 kg, 8 cm distal and 4 cm palmar to the wrist).
+
+Gravity torque at the wrist is computed from the potential energy with the constraints assembled,
+so the coupled joint is included. It flexes the wrist over the whole range: 0.365 Nm at the start
+(+30°) and 0.540 Nm at the target (−15°). The cup adds about 0.23 Nm to the hand's 0.29 Nm at 0°.
+
+## Optimal control problem
+
+The wrist moves from +30° (dropped) to −15° (extended) in 1.0 s with zero velocity at both ends,
+and holds for the last 30 % of the time. The objective is muscle effort (sum of squared
+excitations, reserve weighted ×1000) plus a soft tracking term on a minimum-jerk move followed by
+a hold. Without the tracking term the effort optimum only reaches the target at t = 1 s and never
+holds; the muscle coordination is still predicted by the solver. Moco CasADi solver,
+Hermite–Simpson, tolerance 1e-3, 30 mesh intervals refined to 60.
+
+## Baseline results (MoBL-ARMS)
+
+| | |
 |---|---|
-| Environments | `wrist-opensim`: OpenSim **4.6** with Moco, Python 3.12 (conda, `opensim-org`). `wrist-myosuite`: MyoSuite 3.0.0, MuJoCo 3.17, SB3 2.9.2, Python 3.12 |
-| Model inventory (Task 3) | `results/model_inventory.md` for MoBL-ARMS: 20 coordinates, 50 muscles, 11 bodies, 13 constraints. Names in `config/baseline.yaml` are taken from it |
-| Processed model (Task 4) | `build_model.py`. See "MoBL-ARMS processing" below |
-| Baseline solve (Task 4) | `solve_baseline.py`: MocoCasADiSolver, coarse then refined mesh. **Converged on MoBL-ARMS** (and on fallback B) |
-| Tests (Task 5) | 6 tests; **6 passed on MoBL-ARMS**, and 6 passed with `WRIST_CONFIG=config/fallback_planar.yaml` |
-| Figures (Task 6) | `baseline_*.png` (MoBL-ARMS) and `fallbackB_*.png`, 300 dpi, half-page width |
-| MyoSuite smoke test (Task 7) | Runs. Wrist joints and muscles exposed by name (`myosuite_smoke.md`) |
-
-## Model: MoBL-ARMS
-
-- **File.** `MOBL_ARMS_fixed_41.osim` (torso fixed to ground), from `MobL_ARMS_OpenSim41_unimanual_tutorial.zip` on SimTK project upexdyn. It uses Millard muscles matched to the Schutte curves.
-- **Licence and citation.** The package has no licence file and SimTK lists a CC ANC use agreement, so the model is gitignored. Cite Saul et al. (2015) as modified by McFarland et al. (2019); details are in `models/README.md`.
-- **Verified names.**
-  - Wrist flexion: `flexion` (joint `radiocarpal`; + = flexion, because FCR, FCU and PL have positive moment arms).
-  - Deviation: `deviation` (+ = ulnar).
-  - Forearm rotation: `pro_sup` (+90° = pronated, palm down).
-  - Hand body: `hand` (0.58 kg).
-  - Extensors ECRL, ECRB, ECU; flexors FCR, FCU, plus PL.
-- **Coupled wrist.** `flexion` and `deviation` are "Coupled" coordinates. Coupler constraints drive `wrist_hand_r3` (about half the flexion angle) and `wrist_hand_r1` in a second joint, so hand rotation is split across two joints.
-
-### MoBL-ARMS processing (`build_model.py`)
-
-1. **Posture.** Shoulder elevation 0°, plane 0°, rotation 0°, elbow 90°, `pro_sup` +90° (palm down), deviation 0°. The model is assembled and the coupled shoulder-girdle coordinates are re-solved before welding.
-2. **Welding.** 9 joints are welded (sternoclavicular … radioulnar) with transforms taken from the assembled state; the hand position is checked to be unchanged. `ModOpReplaceJointsWithWelds` could not be used: on this model it lost the posture, leaving the hand hanging at elbow 0°. 11 shoulder coupler constraints are removed.
-3. **Moving path point.** FCU's moving path point `FCU-P2` depends on `pro_sup`; it is frozen at its posture location. Without this, OpenSim segfaults once `pro_sup` is welded.
-4. **Deviation.** It is held at 0° by fixed state bounds and a `brace_deviation` actuator with near-zero cost. A constant coupler constraint was tried first, but OpenSim 4.6's assembler then pinned `flexion` instead. `wrist_hand_r1` and `wrist_hand_r3` stay coupled.
-5. **Muscles.** 6 wrist muscles are kept (ECRL, ECRB, ECU, FCR, FCU, PL). 44 are removed, including the extrinsic finger muscles: the fingers hold the cup in a fixed grasp (P1 scope). This narrows Task 4.3's "all muscles that span the wrist", and the finger muscles can be added back in config. The shoulder ligaments and coordinate limit forces on welded joints are also removed; the wrist limit forces are kept.
-6. **Muscle model and reserve.** DeGrooteFregly2016 muscles with rigid tendons; one penalised reserve, `reserve_flexion`.
-7. **Cup.** 0.3 kg, 8 cm distal and 4 cm palmar in the hand frame. It sits 7.5 cm ahead of and 4.8 cm below the wrist.
-8. **Gravity torque.** Computed as −dV/dq with the constraints assembled, which includes the coupled `wrist_hand_r3`. It flexes the wrist across the whole range: **+0.365 Nm at +30° (start), +0.540 Nm at −15° (target)**, 0.51 Nm at 0°. The cup adds about 0.23 Nm to the hand's 0.29 Nm at 0°.
-
-## Moco problem (same for both models)
-
-- **Task.** Wrist goes from **+30° (dropped) to −15° (extended)** in 1.0 s, with zero velocity at both ends; the last 30 % is a hold.
-- **Goals.**
-  - `MocoControlGoal` for effort. The reserve is weighted ×1000 (optimal force 1 Nm); the brace ×0.001.
-  - `MocoInitialActivationGoal`.
-  - `MocoStateTrackingGoal` (weight 100) against a minimum-jerk move followed by a hold.
-- **Why the tracking goal (design choice).** With pure effort and endpoint constraints the wrist only arrives at the target at t = 1 s and never holds. The kinematics are therefore guided, while muscle coordination is predicted.
-- **Solver.** Hermite–Simpson, tolerances 1e-3, 30 then 60 mesh intervals.
-- **Coupled-coordinate guess.** For MoBL-ARMS, the coupled coordinates get ±π bounds and an initial guess consistent with the constraints. This cut the coarse solve from 291 to 224 iterations.
-
-## Results: MoBL-ARMS baseline (`baseline_solution.sto`, primary)
-
-| Quantity | Value |
-|---|---|
-| Coarse solve (N = 30) | **Solve_Succeeded**, 224 iterations, 1092 s |
-| Refined solve (N = 60, used) | **Solve_Succeeded**, 233 iterations, 1671 s, objective 2.00e-2 |
-| Final wrist angle | −15.00° (target −15°) |
-| Max deviation from target during hold | 0.11° |
-| Gravity torque at wrist (start / target / peak) | 0.365 / 0.540 / 0.540 Nm (flexing) |
-| Reserve torque on flexion, peak / RMS | 1.3e-4 / 4.0e-5 Nm |
-| **Reserve peak / peak gravity torque** | **0.02 %**, well under the 10 % flag |
-| Hold activation: ECRB / ECRL / ECU | 0.106 / 0.089 / 0.034 (peaks 0.121 / 0.112 / 0.052) |
-| Flexors FCR / FCU / PL | stay at the 0.01 minimum (FCU briefly 0.08 at t = 0) |
+| Coarse solve (30 intervals) | converged, 224 iterations, 18 min |
+| Refined solve (60 intervals) | converged, 233 iterations, 28 min |
+| Final wrist angle | −15.00° |
+| Largest drift during the hold | 0.11° |
+| Gravity torque, start / target | 0.365 / 0.540 Nm |
+| Reserve torque, peak / RMS | 1.3e-4 / 4.0e-5 Nm (0.02 % of peak gravity torque) |
+| Hold activation ECRB / ECRL / ECU | 0.106 / 0.089 / 0.034 |
+| FCR, FCU, PL | at the 0.01 minimum |
 | Brace torque on deviation, peak | 0.49 Nm |
 
-**Cross-check with fallback B** (same task, same pipeline):
-- Gravity torque 0.359 / 0.497 Nm vs 0.365 / 0.540 Nm.
-- Extensor hold activation 0.084 (lumped) vs 0.03–0.11 (individual muscles).
-- Reserve 0.02 % in both.
+ECRB and ECRL carry most of the load. The brace mainly absorbs their radial-deviation pull, which
+ECU would otherwise have to balance.
 
-The simple model and MoBL-ARMS agree, which supports using fallback B for the K1–K3 trend previews below.
+## Planar model check
 
-## Results: fallback B (planar, `fallbackB_solution.sto`)
+The planar model has a fixed pronated forearm, a hand on one pin joint, one lumped extensor (782 N,
+11.8 mm moment arm) and one lumped flexor (888 N, 18.5 mm). Forces and moment arms come from the
+MyoSuite MyoHand model (derived from MoBL-ARMS); hand mass and centre of mass come from Winter
+(2009); fibre and tendon lengths are assumed. On the same task it gives a gravity torque of
+0.359 / 0.497 Nm, a hold error of 0.057°, reserve 0.02 % and extensor activation 0.084, close to
+MoBL-ARMS.
 
-- **Model.** A fixed, pronated forearm and a hand on a pin joint `wrist_flexion`. One lumped extensor (782 N, 11.8 mm) and one lumped flexor (888 N, 18.5 mm). Forces and moment arms come from MyoSuite MyoHand (derived from MoBL-ARMS); the hand is 0.45 kg (Winter 2009). Fibre and tendon lengths are assumptions.
-- **Solve.** Converged: coarse 162 iterations in 12 s, refined 24 iterations in 3.4 s.
-- **Accuracy.** Hold error 0.057°; reserve 0.02 % of gravity torque.
+## Early K1–K3 results (planar model)
 
-## P3 preview (preliminary, fallback B only): K1, K2, K3
+- K1 (`sweep_weakness.py`): the extensor maximum force was scaled from 100 % down to 4 %. A level
+  counts as failed if the solver fails, the reserve exceeds 10 % of the gravity torque, or the hold
+  drifts more than 2°. The task fails below 10.62–10.75 % of unimpaired strength.
+- K2 (`assist_study.py`): at 8 % strength an ideal motor needs 0.27 Nm, or a spring of 0.28 Nm/rad
+  (rest angle −60°, peak 0.44 Nm). At 5 % strength: 0.56 Nm, or 0.69 Nm/rad (peak 1.08 Nm). A spring
+  is enough in both cases but needs 1.6–1.9× the motor's peak torque.
+- K3: the 0.69 Nm/rad spring cuts muscle effort by 82 % at full strength and 86 % at 30 % strength.
 
-- **K1, weakness sweep** (`sweep_weakness.py`, `fallbackB_k1_sweep.{csv,png}`).
-  - **K1 is between 10.62 % and 10.75 % of unimpaired extensor force.**
-  - A level fails if the solver fails, the reserve exceeds 10 % of the gravity torque, or the hold drifts more than 2°.
-  - The 4 % coarse solve hit the iteration limit; that level fails on every criterion anyway.
-- **K2, smallest assist that restores the task** (`assist_study.py`).
-  - 8 % strength: motor 0.27 Nm, or spring 0.28 Nm/rad (peak 0.44 Nm).
-  - 5 % strength: motor 0.56 Nm, or spring 0.69 Nm/rad (peak 1.08 Nm).
-  - **A spring is enough at both levels**, but needs 1.6–1.9× the motor's peak torque.
-- **K3, effort reduction.** The 0.69 Nm/rad spring cuts muscle effort by **82 %** (100 % strength) and **86 %** (30 % strength).
-- **Modelling choices behind these numbers.** Motor effort weight 1.0; spring rest angle −60°.
+The unassisted solves at 4 % and 5 % strength hit the iteration limit; both levels fail on every
+criterion anyway. The motor effort weight (1.0) and the spring rest angle are modelling choices.
 
-## Figures (`results/`)
+## Route B
 
-1. `baseline_wrist_angle.png`, `baseline_activations.png`, `baseline_reserve_torque.png`, `baseline_mean_activation.png`: MoBL-ARMS baseline.
-2. `fallbackB_*.png` (same four), plus `fallbackB_model_schematic.png`: fallback B.
-3. `fallbackB_k1_sweep.png` and `fallbackB_assist.png`: K1–K3 previews (fallback B).
-4. `pipeline_diagram.png`: method outline.
+`myoHandObjHoldFixed-v0` was picked from the 226 registered MyoSuite environments. 200 random steps
+run without errors (observation 91, action 39). The wrist joints `flexion`, `deviation`, `pro_sup`
+and the muscles ECRL, ECRB, ECU, FCR, FCU, PL are available by name (`myosuite_smoke.md`).
 
-## Route B smoke test (`myosuite_smoke.md`)
+## Figures
 
-`myoHandObjHoldFixed-v0`, chosen from 226 registered environments. 200 random steps ran with no
-errors; observation dimension 91, action dimension 39. Wrist joints `flexion`, `deviation`,
-`pro_sup` and muscles ECRL, ECRB, ECU, FCR, FCU, PL are all exposed by name.
+- `baseline_wrist_angle.png`, `baseline_activations.png`, `baseline_reserve_torque.png`,
+  `baseline_mean_activation.png`: MoBL-ARMS baseline.
+- `planar_*.png`: the same plots for the planar model, plus `planar_model_schematic.png`.
+- `planar_k1_sweep.png`, `planar_assist.png`: K1–K3.
+- `pipeline_diagram.png`: method overview.
 
-## Fallbacks used
+## Limitations
 
-- **Fallback B.** Used on 2–3 Nov while MoBL-ARMS was unavailable. It is **now replaced by MoBL-ARMS for the baseline**, but still the source of the K1–K3 previews.
-- **Fallback A (torque-driven).** Not used; it is implemented as `solve_baseline.py --torque-driven`.
-
-## Known limitations
-
-- **Deviation is braced.** It is held at 0° by an ideal brace, which carries up to 0.49 Nm, mostly the radial-deviation side effect of ECRL and ECRB. A free deviation (`posture.free_wrist_deviation: true`) would instead need ECU co-contraction.
-- **Finger muscles excluded.** The extrinsic finger muscles cross the wrist but are assumed busy gripping.
-- **Hold relies on a tracking goal.** The kinematics are softly prescribed.
-- **Solve time.** MoBL-ARMS solves take about 45 min (wrapping surfaces), so sweeps need the coarse mesh, a warm start or fewer levels.
-- **Fallback-B parameters.** Fibre and tendon lengths there are assumptions; K1–K3 must be re-run on MoBL-ARMS.
-- **Generic model.** One generic adult and one 1 s task: these are relative findings, not clinical predictions.
+- K1–K3 come from the planar model; the thresholds are model-specific.
+- Deviation is braced at 0° in the baseline.
+- Finger muscles are left out.
+- The hold is shaped by a tracking term, so the kinematics are partly prescribed.
+- MoBL-ARMS solves take about 45 minutes, which limits how many sweep points are practical.
+- One generic adult and one 1 s task: the results are relative, not clinical predictions.
 
 ## Next steps (P3)
 
-- **K1 on MoBL-ARMS.** Coarse-mesh sweep with warm starts from the neighbouring strength level, then bisection, plus a sensitivity check on cup mass and movement time.
-- **K2/K3 on MoBL-ARMS.** Stiffness and rest angle as `MocoParameter`s, and a motor torque limit.
-- **Free deviation.** Optionally free deviation and compare the brace torque with ECU co-contraction.
-- **Route B.** Use the MoBL-ARMS wrist trajectory as the PPO reference in `myoHandObjHold`.
+- K1 on MoBL-ARMS: coarse-mesh sweep with warm starts from the neighbouring strength level.
+- Sensitivity to cup mass, movement time and a free wrist deviation.
+- Spring vs. motor on MoBL-ARMS, with stiffness and rest angle as Moco parameters.
+- Route B: PPO in `myoHandObjHold` with the MoBL-ARMS wrist trajectory as reference.

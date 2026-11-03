@@ -1,4 +1,4 @@
-"""K2/K3 (P3 preview): wrist assistance -- ideal motor vs passive torsional spring.
+"""K2/K3: wrist assistance, ideal motor vs passive torsional spring.
 
 K2  At extensor strength levels where the unassisted task fails, find by bisection
     * the smallest torque limit (Nm) of an ideal wrist motor that restores the task, and

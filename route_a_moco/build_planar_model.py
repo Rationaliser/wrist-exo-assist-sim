@@ -1,15 +1,15 @@
-"""Fallback B: minimal planar wrist model built in code (used while MoBL-ARMS is unavailable).
+"""Minimal planar wrist model built in code (fast cross-check of the MoBL-ARMS pipeline).
 
 Two rigid bodies: a forearm welded to ground (horizontal, pronated: palm down) and a hand on a
 pin joint `wrist_flexion` (+ = flexion = hand tip falls under gravity). One lumped wrist
 extensor and one lumped wrist flexor (Millard2012 muscles, replaced by DeGrooteFregly2016 in
 build_model.py), each wrapping over a cylinder at the wrist axis so the moment arm stays close
-to the configured value. All parameters live in config/fallback_planar.yaml with their sources.
+to the configured value. All parameters live in config/planar.yaml with their sources.
 
 The cup is NOT added here; build_model.py adds it exactly as for MoBL-ARMS.
 
 Usage (wrist-opensim env):
-    python route_a_moco/build_planar_model.py [--config config/fallback_planar.yaml]
+    python route_a_moco/build_planar_model.py [--config config/planar.yaml]
 """
 import argparse
 import math
@@ -21,7 +21,7 @@ import opensim as osim
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import REPO_ROOT, load_config, model_path  # noqa: E402
 
-DEFAULT_CFG = REPO_ROOT / "config" / "fallback_planar.yaml"
+DEFAULT_CFG = REPO_ROOT / "config" / "planar.yaml"
 
 
 def _segment_inertia(mass, length, rog):
@@ -32,7 +32,7 @@ def _segment_inertia(mass, length, rog):
 
 def make_model(p, coord_name, hand_body):
     m = osim.Model()
-    m.setName("planar_wrist_fallbackB")
+    m.setName("planar_wrist")
     m.setGravity(osim.Vec3(0, -9.80665, 0))
     # Frames: x = distal along the forearm, y = up (= dorsal, palm down), z = lateral.
     fa, hd = p["forearm"], p["hand"]

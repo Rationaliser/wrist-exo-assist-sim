@@ -5,7 +5,7 @@ Two panels sharing the x axis (extensor strength, % of unimpaired max isometric 
   right peak reserve torque as % of the peak gravity torque, with the 10 % failure line
 Filled markers = task passes, hollow = task fails. The shaded band is the K1 interval.
 
-Usage:  python analysis/plot_k1.py [--tag fallbackB] [--stamp "Fallback B: ..."]
+Usage:  python analysis/plot_k1.py [--tag planar] [--stamp "Planar 2-muscle wrist model"]
 """
 import argparse
 import json

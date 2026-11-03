@@ -3,8 +3,8 @@
 Case study for **MDM2 – Assistive Robotics for Improvement of Life Quality**
 (Software & Simulation track), Deggendorf Institute of Technology.
 
-> Status (P2, 2 Nov 2026): baseline pipeline working. The Route A baseline currently runs on a planar
-> fallback wrist model while MoBL-ARMS access is pending; see [results/SUMMARY.md](results/SUMMARY.md).
+> Status (P2, Nov 2026): baseline simulation on MoBL-ARMS working. Results in
+> [results/SUMMARY.md](results/SUMMARY.md).
 
 ## Overview
 
@@ -44,52 +44,42 @@ and hold a cup, and what is the minimum wrist assistance that restores it?
 
 ```
 wrist-exo-assist-sim/
-├── README.md
-├── documents/                    # proposal + concept presentation
-├── env/
-│   ├── environment-opensim.yml   # conda env for Route A (OpenSim 4.6 + Moco, Python 3.12)
-│   └── requirements-myosuite.txt # pip requirements for Route B (MyoSuite 3.0.0, SB3)
-├── models/                       # gitignored: MoBL-ARMS goes here (see models/README.md)
+├── documents/              proposal and concept presentation
+├── env/                    environment files (OpenSim conda env, MyoSuite pip requirements)
+├── models/                 MoBL-ARMS goes here (not in git, see models/README.md)
 ├── config/
-│   ├── baseline.yaml             # MoBL-ARMS: model path, names, posture, cup, task, solver
-│   └── fallback_planar.yaml      # fallback B: planar 2-muscle wrist model + parameter sources
+│   ├── baseline.yaml       MoBL-ARMS: names, posture, cup, task, solver settings
+│   └── planar.yaml         planar 2-muscle wrist model used for fast checks
 ├── route_a_moco/
-│   ├── inspect_model.py          # model inventory (coordinates, muscles, bodies)
-│   ├── build_planar_model.py     # fallback B model, built in code
-│   ├── build_model.py            # processed model: welds, cup, wrist muscles, scale_strength(), reserves
-│   ├── solve_baseline.py         # Moco problem + solve, metrics, reserve check
-│   ├── plot_results.py           # report figures
-│   ├── sweep_weakness.py         # K1: extensor weakness sweep + bisection (P3 preview)
-│   └── assist_study.py           # K2/K3: ideal motor vs torsional spring (P3 preview)
-├── analysis/
-│   ├── pipeline_diagram.py       # method-outline figure
-│   └── plot_k1.py                # K1 sweep figure
+│   ├── inspect_model.py    model inventory (coordinates, muscles, bodies)
+│   ├── build_model.py      processed model: posture, cup, wrist muscles, reserves
+│   ├── build_planar_model.py
+│   ├── solve_baseline.py   Moco problem, solve, reserve check
+│   ├── plot_results.py
+│   ├── sweep_weakness.py   K1: extensor weakness sweep
+│   └── assist_study.py     K2/K3: motor vs. spring
 ├── route_b_rl/
-│   └── smoke_test.py             # MyoSuite environment smoke test
-├── presentation/                 # P2 slide deck (.pptx + .pdf) and its generator script
-├── results/                      # solutions (.sto), figures (.png), reports, SUMMARY.md
+│   └── smoke_test.py       MyoSuite environment check
+├── analysis/               extra figures (pipeline diagram, K1/K2 plots, model sketch)
+├── presentation/           P2 slides (.pptx/.pdf), the script that builds them, speaker notes
+├── results/                solutions (.sto), reports, figures, SUMMARY.md
 └── tests/
-    └── test_build_model.py
 ```
 
-## Model: MoBL-ARMS
+## Model
 
-MoBL-ARMS (Saul et al. 2015) comes from SimTK project
-[upexdyn](https://simtk.org/projects/upexdyn), release "MoBL-ARMS dynamic upper limb model - OpenSim
-4.1+" (file `MobL_ARMS_OpenSim41_unimanual_tutorial.zip`). Downloading it needs a free SimTK login.
-SimTK lists it under the "Creative Commons ANC Use Agreement" and the redistribution terms are not
-shown, so it is **not** in this repository. Unzip it and put the unimanual `.osim` file and its
-`Geometry/` folder in `models/`, then set `model.path` in `config/baseline.yaml`. Details are in
-[models/README.md](models/README.md).
+MoBL-ARMS (Saul et al. 2015, updated by McFarland et al. 2019) is on SimTK, project
+[upexdyn](https://simtk.org/projects/upexdyn). We use `MOBL_ARMS_fixed_41.osim` from
+`MobL_ARMS_OpenSim41_unimanual_tutorial.zip`. Downloading needs a free SimTK login, and the model is
+not redistributed here. See [models/README.md](models/README.md) for where to put the files.
 
 ## How to run
 
-Tested on Ubuntu 22.04 (x86_64). The commands are run from the repository root.
+Tested on Ubuntu 22.04. Run everything from the repository root.
 
-### 1. Environments (one-off)
+### Environments
 
-Install [Miniforge](https://github.com/conda-forge/miniforge) if conda is missing. Then create two
-separate environments; OpenSim and MyoSuite are kept apart on purpose.
+OpenSim and MyoSuite live in separate environments:
 
 ```bash
 conda env create -f env/environment-opensim.yml
@@ -97,56 +87,43 @@ conda create -n wrist-myosuite python=3.12 -y
 conda run -n wrist-myosuite pip install -r env/requirements-myosuite.txt
 ```
 
-Check them:
-
-```bash
-conda run -n wrist-opensim python -c "import opensim; print(opensim.__version__, hasattr(opensim, 'MocoStudy'))"
-conda run -n wrist-myosuite python -c "import myosuite"
-```
-
-### 2. Route A with MoBL-ARMS (primary)
+### Route A: baseline on MoBL-ARMS
 
 ```bash
 conda activate wrist-opensim
-python route_a_moco/inspect_model.py      # writes results/model_inventory.md
-# fill names / posture in config/baseline.yaml from the inventory, then:
-python route_a_moco/build_model.py        # processed model + gravity torque check
-python route_a_moco/solve_baseline.py     # results/baseline_solution.sto, baseline_report.json
+python route_a_moco/inspect_model.py      # results/model_inventory.md
+python route_a_moco/build_model.py        # builds the processed model, prints gravity torque
+python route_a_moco/solve_baseline.py     # results/baseline_solution.sto (about 45 min)
 python route_a_moco/plot_results.py       # results/baseline_*.png
 pytest
 ```
 
-### 3. Route A with fallback B (no MoBL-ARMS needed)
+`solve_baseline.py --torque-driven` replaces the muscles with an ideal wrist actuator.
 
-All scripts read `$WRIST_CONFIG`, so the same commands run on the planar fallback model:
+### Route A: planar model
 
-```bash
-conda activate wrist-opensim
-export WRIST_CONFIG=config/fallback_planar.yaml
-python route_a_moco/build_planar_model.py                        # models/planar_wrist_fallbackB.osim
-python route_a_moco/inspect_model.py --out results/fallbackB_model_inventory.md
-python route_a_moco/solve_baseline.py --tag fallbackB
-python route_a_moco/plot_results.py --tag fallbackB
-pytest
-```
-
-`solve_baseline.py --torque-driven` runs fallback A (an ideal wrist torque actuator, no muscles).
-
-### 3b. P3 preview: K1 weakness sweep and K2/K3 assistance (fallback B shown; drop `WRIST_CONFIG` for MoBL-ARMS)
+All scripts read `$WRIST_CONFIG`, so the same commands run on the planar model (seconds per solve):
 
 ```bash
-export WRIST_CONFIG=config/fallback_planar.yaml
-python route_a_moco/sweep_weakness.py --tag fallbackB                     # ~10 min
-python analysis/plot_k1.py --tag fallbackB --stamp "Fallback B"
-python route_a_moco/assist_study.py --tag fallbackB --weak 0.08 0.05 --pass-levels 1.0 0.3   # ~30 min
-python analysis/pipeline_diagram.py
+export WRIST_CONFIG=config/planar.yaml
+python route_a_moco/build_planar_model.py
+python route_a_moco/solve_baseline.py --tag planar
+python route_a_moco/plot_results.py --tag planar
+python route_a_moco/sweep_weakness.py --tag planar                    # K1, about 10 min
+python route_a_moco/assist_study.py --tag planar --weak 0.08 0.05 --pass-levels 1.0 0.3
+python analysis/plot_k1.py --tag planar --stamp "Planar 2-muscle wrist model"
+python analysis/plot_assist.py --tag planar --stamp "Planar 2-muscle wrist model"
 ```
 
-### 4. Route B smoke test
+### Route B: MyoSuite check
 
 ```bash
 conda activate wrist-myosuite
-MUJOCO_GL=egl python route_b_rl/smoke_test.py   # results/myosuite_smoke.md + frames
+MUJOCO_GL=egl python route_b_rl/smoke_test.py   # results/myosuite_smoke.md
 ```
 
-Results and their caveats are summarised in [results/SUMMARY.md](results/SUMMARY.md).
+### Slides
+
+```bash
+node presentation/build_p2_deck.js   # needs pptxgenjs (npm install pptxgenjs)
+```

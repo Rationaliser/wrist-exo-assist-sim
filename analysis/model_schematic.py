@@ -1,6 +1,6 @@
-"""Schematic of the fallback B planar wrist model (for slides / report).
+"""Schematic of the planar wrist model (for slides / report).
 
-Usage:  python analysis/model_schematic.py   ->  results/fallbackB_model_schematic.png
+Usage:  python analysis/model_schematic.py   ->  results/planar_model_schematic.png
 """
 import math
 from pathlib import Path
@@ -11,7 +11,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 from matplotlib.patches import Arc, Circle, FancyArrowPatch, FancyBboxPatch, Polygon  # noqa: E402
 
-OUT = Path(__file__).resolve().parents[1] / "results" / "fallbackB_model_schematic.png"
+OUT = Path(__file__).resolve().parents[1] / "results" / "planar_model_schematic.png"
 INK, INK2 = "#0b0b0b", "#52514e"
 EXT, FLX = "#2a78d6", "#eb6834"
 BONE, HAND, CUP = "#d9d4c7", "#e8e2d4", "#9a9993"

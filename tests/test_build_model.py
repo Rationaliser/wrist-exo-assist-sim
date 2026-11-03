@@ -1,4 +1,4 @@
-"""Task 5: tests for route_a_moco/build_model.py (run in the wrist-opensim env: `pytest`)."""
+"""Tests for route_a_moco/build_model.py (run in the wrist-opensim env: `pytest`)."""
 import sys
 from pathlib import Path
 

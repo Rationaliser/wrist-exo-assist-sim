@@ -1,7 +1,7 @@
-# Model inventory: `planar_wrist_fallbackB.osim`
+# Model inventory: `planar_wrist.osim`
 
 * OpenSim version: 4.6
-* Model name: `planar_wrist_fallbackB`
+* Model name: `planar_wrist`
 * Gravity: ~[0,-9.80665,0]
 * Coordinates: 1, muscles: 2, bodies: 2, joints: 2, constraints: 0, forces: 2
 * Moment arms evaluated at the default pose; |r| > 0.1 mm counts as spanning.

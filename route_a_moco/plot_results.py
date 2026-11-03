@@ -1,4 +1,4 @@
-"""Task 6: report figures from the baseline Moco solution.
+"""Report figures from a Moco solution.
 
 Reads results/<tag>_solution.sto (+ <tag>_gravity_torque.csv, <tag>_report.json) and writes
 300-dpi PNGs sized for half-page width:
@@ -41,7 +41,7 @@ plt.rcParams.update({
 })
 
 
-STAMP = ""  # provenance note printed in the corner of every figure (e.g. which fallback was used)
+STAMP = ""  # provenance note printed above every figure (e.g. which model was used)
 
 
 def save(fig, out):
@@ -182,13 +182,13 @@ def main():
     grav = pd.read_csv(RESULTS_DIR / f"{args.tag}_gravity_torque.csv")
     qname = cfg["names"]["wrist_flexion"]
     torque_driven = report["actuation"] == "torque"
-    fallback = " [FALLBACK A: torque-driven]" if torque_driven else ""
+    suffix = " (torque-driven)" if torque_driven else ""
     global STAMP
     notes = []
-    if "fallback" in str(cfg["model"].get("source", "")).lower():
-        notes.append("Fallback B: planar 2-muscle wrist model")
+    if cfg["model"].get("label"):
+        notes.append(cfg["model"]["label"])
     if torque_driven:
-        notes.append("Fallback A: torque-driven")
+        notes.append("Torque-driven wrist, no muscles")
     STAMP = " | ".join(notes)
     written = []
 
@@ -202,7 +202,7 @@ def main():
                           for q in report["build"]["free_coordinates"]})
     p = RESULTS_DIR / f"{args.tag}_reserve_torque.png"
     fig_reserve(df, grav, actuators, p, ("Motor and reserve" if torque_driven else "Reserve") +
-                " vs gravity torque" + fallback)
+                " vs gravity torque" + suffix)
     written.append(p)
 
     if not torque_driven:

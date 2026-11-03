@@ -1,4 +1,4 @@
-"""Task 3: write an inventory of an OpenSim model to results/model_inventory.md.
+"""Write an inventory of an OpenSim model to results/model_inventory.md.
 
 Lists every coordinate, muscle (with the coordinates it spans) and body, so that
 coordinate/muscle names used downstream are read from the model, not guessed.

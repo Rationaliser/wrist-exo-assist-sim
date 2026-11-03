@@ -5,7 +5,7 @@ Left:  K2 -- smallest assist that restores the task at each failing strength lev
        with the peak gravity torque at the wrist as a reference line.
 Right: K3 -- muscle-effort reduction (%) from that spring at strength levels that pass unassisted.
 
-Usage:  python analysis/plot_assist.py [--tag fallbackB] [--stamp "..."]
+Usage:  python analysis/plot_assist.py [--tag planar] [--stamp "..."]
 """
 import argparse
 import json

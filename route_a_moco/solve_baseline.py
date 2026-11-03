@@ -1,4 +1,4 @@
-"""Task 4b: baseline Moco solve -- lift the dropped wrist to a functional angle and hold it.
+"""Baseline Moco solve: lift the dropped wrist to a functional angle and hold it.
 
 Problem
   * states: wrist flexion angle/speed (+ deviation if freed), muscle activations
@@ -24,7 +24,7 @@ import numpy as np
 import opensim as osim
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from build_model import RESERVE_PREFIX, build, gravity_torques  # noqa: E402
+from build_model import build, gravity_torques  # noqa: E402
 from common import RESULTS_DIR, load_config  # noqa: E402
 
 log = logging.getLogger("solve_baseline")
@@ -195,7 +195,7 @@ def evaluate(cfg, model, info, sol, qpath):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--config", default=None)
-    ap.add_argument("--torque-driven", action="store_true", help="fallback A: wrist torque actuator, no muscles")
+    ap.add_argument("--torque-driven", action="store_true", help="ideal wrist torque actuator instead of muscles")
     ap.add_argument("--no-refine", action="store_true")
     ap.add_argument("--tag", default="baseline")
     args = ap.parse_args()

@@ -2,7 +2,7 @@
   "actuation": "muscles",
   "opensim_version": "4.6",
   "build": {
-    "source_model": "models/planar_wrist_fallbackB.osim",
+    "source_model": "models/planar_wrist.osim",
     "free_coordinates": [
       "wrist_flexion"
     ],
@@ -50,5 +50,5 @@
     "reserve_wrist_flexion_rms_Nm": 2.6259313234885577e-05,
     "reserve_wrist_flexion_peak_over_gravity_pct": 0.023857000536289977
   },
-  "solution_file": "results/fallbackB_solution.sto"
+  "solution_file": "results/planar_solution.sto"
 }
