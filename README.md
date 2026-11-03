@@ -44,7 +44,7 @@ and hold a cup, and what is the minimum wrist assistance that restores it?
 
 ```
 wrist-exo-assist-sim/
-├── documents/              P1 proposal and presentation, P2 presentation
+├── documents/              P1 proposal and presentation, P2 report (PDF) and presentation
 ├── env/                    environment files (OpenSim conda env, MyoSuite pip requirements)
 ├── models/                 MoBL-ARMS goes here (not in git, see models/README.md)
 ├── config/
