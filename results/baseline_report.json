@@ -1,0 +1,154 @@
+{
+  "actuation": "muscles",
+  "opensim_version": "4.6",
+  "build": {
+    "source_model": "models/MOBL_ARMS_fixed_41.osim",
+    "free_coordinates": [
+      "flexion"
+    ],
+    "braced_coordinates": [
+      "deviation"
+    ],
+    "braces": [
+      "brace_deviation"
+    ],
+    "dependent_coordinates": [
+      "wrist_hand_r1",
+      "wrist_hand_r3"
+    ],
+    "welded_joints": [
+      "sternoclavicular",
+      "unrotscap",
+      "acromioclavicular",
+      "unrothum",
+      "shoulder0",
+      "shoulder1",
+      "shoulder2",
+      "elbow",
+      "radioulnar"
+    ],
+    "removed_constraints": [
+      "shoulder1_r2_con",
+      "unrothum_r3_con",
+      "unrothum_r2_con",
+      "unrothum_r1_con",
+      "acromioclavicular_r3_con",
+      "acromioclavicular_r2_con",
+      "acromioclavicular_r1_con",
+      "unrotscap_r3_con",
+      "unrotscap_r2_con",
+      "sternoclavicular_r3_con",
+      "sternoclavicular_r2_con"
+    ],
+    "removed_muscles": [
+      "ANC",
+      "APL",
+      "BIClong",
+      "BICshort",
+      "BRA",
+      "BRD",
+      "CORB",
+      "DELT1",
+      "DELT2",
+      "DELT3",
+      "EDCI",
+      "EDCL",
+      "EDCM",
+      "EDCR",
+      "EDM",
+      "EIP",
+      "EPB",
+      "EPL",
+      "FDPI",
+      "FDPL",
+      "FDPM",
+      "FDPR",
+      "FDSI",
+      "FDSL",
+      "FDSM",
+      "FDSR",
+      "FPL",
+      "INFSP",
+      "LAT1",
+      "LAT2",
+      "LAT3",
+      "PECM1",
+      "PECM2",
+      "PECM3",
+      "PQ",
+      "PT",
+      "SUBSC",
+      "SUP",
+      "SUPSP",
+      "TMAJ",
+      "TMIN",
+      "TRIlat",
+      "TRIlong",
+      "TRImed"
+    ],
+    "removed_other_forces": [
+      "coracohum",
+      "elbow_flexion_damping",
+      "elbow_flexion_ligaments",
+      "elv_angle_damping",
+      "elv_angle_ligaments",
+      "i_glenohum",
+      "m_glenohum",
+      "pro_sup_damping",
+      "pro_sup_ligaments",
+      "s_glenohum",
+      "shoulder_elv_damping",
+      "shoulder_elv_ligaments",
+      "shoulder_rot_damping",
+      "shoulder_rot_ligaments"
+    ],
+    "frozen_path_points": [
+      "FCU-P2"
+    ],
+    "dropped_path_points": [],
+    "kept_muscles": [
+      "ECRL",
+      "ECRB",
+      "ECU",
+      "FCR",
+      "FCU",
+      "PL"
+    ],
+    "reserves": [
+      "reserve_flexion"
+    ],
+    "strength_factor": 1.0
+  },
+  "runs": [
+    {
+      "label": "coarse N=30",
+      "success": true,
+      "status": "Solve_Succeeded",
+      "iterations": 224,
+      "solver_duration_s": 1092.495801855,
+      "wall_time_s": 1092.708084344864,
+      "objective": 0.02012660138594407
+    },
+    {
+      "label": "refined N=60",
+      "success": true,
+      "status": "Solve_Succeeded",
+      "iterations": 233,
+      "solver_duration_s": 1671.306581163,
+      "wall_time_s": 1671.466186761856,
+      "objective": 0.019986848400815816
+    }
+  ],
+  "used_run": "refined N=60",
+  "metrics": {
+    "final_angle_deg": -14.999999999999998,
+    "hold_max_error_deg": 0.10929460530263066,
+    "gravity_torque_start_Nm": 0.36478591868061017,
+    "gravity_torque_end_Nm": 0.5395766927307477,
+    "gravity_torque_peak_abs_Nm": 0.539600496516357,
+    "reserve_flexion_peak_abs_Nm": 0.00012862648963646623,
+    "reserve_flexion_rms_Nm": 4.01434273535866e-05,
+    "reserve_flexion_peak_over_gravity_pct": 0.02383735568571093
+  },
+  "solution_file": "results/baseline_solution.sto"
+}

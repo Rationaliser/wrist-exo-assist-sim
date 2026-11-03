@@ -110,7 +110,7 @@ def fig_activations(df, groups, colors, out):
         ends, series = [], []
         for m in muscles:
             ax.plot(t, acts[m], color=colors[m])
-            ends.append(acts[m][-1])
+            ends.append(acts[m][int(0.9 * len(acts[m])):].mean())  # last 10 %: robust to end-point dips
             series.append(m)
         ys = spread(ends, 0.07 * top) if ends else []
         top = max([top] + [y * 1.05 for y in ys])
@@ -122,6 +122,10 @@ def fig_activations(df, groups, colors, out):
         ax.set_xlim(t[0], t[-1] * 1.12)
     axes[0].set_ylabel("Activation (0–1)")
     axes[0].set_ylim(0, top)
+    if sum(len(g) for g in groups.values()) > 2:
+        handles = [plt.Line2D([], [], color=colors[m], lw=1.6) for g in groups.values() for m in g]
+        fig.legend(handles, [m for g in groups.values() for m in g], loc="upper center",
+                   bbox_to_anchor=(0.5, -0.07), ncol=6, frameon=False)
     save(fig, out)
 
 
@@ -204,7 +208,8 @@ def main():
     if not torque_driven:
         kept = set(report["build"]["kept_muscles"])
         groups = {"Wrist extensors": [m for m in cfg["names"]["wrist_extensors"] if m in kept],
-                  "Wrist flexors": [m for m in cfg["names"]["wrist_flexors"] if m in kept]}
+                  "Wrist flexors": [m for m in list(cfg["names"]["wrist_flexors"]) +
+                                    list(cfg["names"].get("other_wrist_muscles", [])) if m in kept]}
         ordered = groups["Wrist extensors"] + groups["Wrist flexors"]
         colors = {m: SERIES[i] if i < len(SERIES) else OTHER for i, m in enumerate(ordered)}
         p = RESULTS_DIR / f"{args.tag}_activations.png"
