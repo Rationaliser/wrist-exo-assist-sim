@@ -1,6 +1,6 @@
 # P2 presentation: speaker notes
 
-Presentation on 4 November 2026. Slides: `P2_Team7_Wrist_Exo_Baseline.pptx` (PDF copy next to it);
+Presentation on 4 November 2026. Slides: `documents/Team7_P2_Presentation.pptx` (PDF copy next to it);
 each slide also has notes in the PowerPoint file. Numbers come from `results/`.
 
 ## Main message

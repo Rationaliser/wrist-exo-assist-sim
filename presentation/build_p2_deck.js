@@ -1,13 +1,13 @@
 // P2 presentation deck (Team 7, MDM2 case study), styled after the P1 concept presentation.
 // Usage:  NODE_PATH=<dir with pptxgenjs> node presentation/build_p2_deck.js
-// Output: presentation/P2_Team7_Wrist_Exo_Baseline.pptx  (figures are read from results/)
+// Output: documents/Team7_P2_Presentation.pptx  (figures are read from results/)
 const path = require("path");
 const pptxgen = require("pptxgenjs");
 
 const ROOT = path.resolve(__dirname, "..");
 const RES = (f) => path.join(ROOT, "results", f);
 const LOGO = path.join(__dirname, "assets", "thd_logo.png");
-const OUT = path.join(__dirname, "P2_Team7_Wrist_Exo_Baseline.pptx");
+const OUT = path.join(ROOT, "documents", "Team7_P2_Presentation.pptx");
 const APPLY_THEME = process.env.APPLY_THEME_JS;
 const DATE = "11/4/2026";
 const FOOTER = "Case Study Wrist Exoskeleton Assistance";
