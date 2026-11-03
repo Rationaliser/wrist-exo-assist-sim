@@ -12,8 +12,8 @@ The MyoSuite environment for Route B is set up and checked.
 
 ## Things to say clearly
 
-- Slides 6–9 (baseline) are MoBL-ARMS.
-- Slides 10–11 (K1–K3) use the planar two-muscle model. It agrees with the MoBL-ARMS baseline
+- Slides 6–10 (baseline, including the simulation video on slide 9) are MoBL-ARMS.
+- Slides 11–12 (K1–K3) use the planar two-muscle model. It agrees with the MoBL-ARMS baseline
   (gravity torque within 2–9 %, same reserve level, similar extensor activation) and solves in
   seconds instead of about 45 minutes. Its muscle data come from MyoSuite's MyoHand (derived from
   MoBL-ARMS), the hand mass from Winter (2009); fibre and tendon lengths are assumed.
@@ -26,6 +26,7 @@ The MyoSuite environment for Route B is set up and checked.
 | Method outline | Route A plans the motion with Moco, Route B learns it with PPO later | `pipeline_diagram.png` |
 | Model and task | Arm at the side, elbow 90°, palm down, so gravity drops the hand. Wrist goes from 30° flexion to 15° extension in 1 s and holds | `planar_model_schematic.png` (sketch) |
 | Baseline | Converged on both meshes (refined: 233 iterations, 28 min). Held within 0.11°. Reserve 0.02 % of gravity torque | `baseline_wrist_angle.png`, `baseline_reserve_torque.png` |
+| Simulation video | Click to play (7 s, 5× slow motion). Arm fixed, wrist lifts the cup from 30° flexion to 15° extension and holds. Blue = extensors, orange = flexors, thicker = more active | `baseline_simulation.mp4` |
 | Muscle activity | ECRB ≈ 0.11, ECRL ≈ 0.09, ECU ≈ 0.03; flexors at their minimum | `baseline_activations.png` |
 | K1 | Activation reaches 1.0 below about 12 % strength; the task fails below 10.62–10.75 % | `planar_k1_sweep.png` |
 | K2/K3 | 0.27 Nm motor at 8 % strength, 0.56 Nm at 5 %. A spring also works but needs 1.6–1.9× the peak torque. It cuts muscle effort by 82–86 % | `planar_assist.png` |

@@ -95,6 +95,7 @@ python route_a_moco/inspect_model.py      # results/model_inventory.md
 python route_a_moco/build_model.py        # builds the processed model, prints gravity torque
 python route_a_moco/solve_baseline.py     # results/baseline_solution.sto (about 45 min)
 python route_a_moco/plot_results.py       # results/baseline_*.png
+python analysis/render_baseline_video.py  # results/baseline_simulation.mp4 (needs models/Geometry)
 pytest
 ```
 

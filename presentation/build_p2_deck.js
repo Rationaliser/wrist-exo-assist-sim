@@ -277,6 +277,14 @@ pres.addSection({ title: "Results" });
   s.addNotes("MoBL-ARMS baseline: the coarse mesh converged in 224 iterations (18 min), the refined mesh in 233 iterations (28 min). The wrist reaches -15 degrees and holds within 0.11 degrees. Peak reserve torque is 0.00013 Nm, 0.02 % of the 0.54 Nm gravity torque, far below the 10 % limit, so the muscles alone do the task. The planar model gives the same picture: 0.02 % reserve, gravity 0.36-0.50 Nm.");
 }
 
+// ---------------------------------------------------------------- 8b simulation video
+{
+  const s = content("Results", "Baseline Simulation (MoBL-ARMS):");
+  const cover = "image/png;base64," + require("fs").readFileSync(path.join(__dirname, "assets", "baseline_video_cover.png")).toString("base64");
+  s.addMedia({ type: "video", path: RES("baseline_simulation.mp4"), x: 1.87, y: 1.42, w: 9.6, h: 5.4, cover, objectName: oid("video") });
+  s.addNotes("Click the video to play it (about 7 seconds). The MoBL-ARMS arm is fixed with the elbow at 90 degrees and the palm down. The wrist starts dropped at 30 degrees flexion and lifts the 0.3 kg cup to 15 degrees extension in 1 second, then holds; the video plays 5 times slower than real time. Blue lines are the extensors, orange the flexors; thicker lines mean higher activation. The right side shows the wrist angle and the activation of each muscle. ECRB and ECRL do most of the work; the flexors stay at their minimum. The reserve torque stays at 0.02 % of the gravity torque, so the muscles do the task on their own.");
+}
+
 // ---------------------------------------------------------------- 9 muscle activity
 {
   const s = content("Results", "Muscle Activity:");
