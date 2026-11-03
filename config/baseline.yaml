@@ -4,34 +4,47 @@
 
 model:
   # MoBL-ARMS dynamic upper limb (SimTK "upexdyn"); see models/README.md. Not in git.
-  path: models/MOBL_ARMS_41.osim          # TODO(Task 2): set to the file the user placed
-  source: "SimTK upexdyn, release 'MoBL-ARMS dynamic upper limb model - OpenSim 4.1+' (2021-02-22)"
-  licence: "Creative Commons ANC Use Agreement (per SimTK); not redistributed in this repo"
+  path: models/MOBL_ARMS_fixed_41.osim    # torso fixed to ground; from MobL_ARMS_OpenSim41_unimanual_tutorial.zip
+  source: "SimTK upexdyn, MobL_ARMS_OpenSim41_unimanual_tutorial.zip, Model/4.1/MOBL_ARMS_fixed_41.osim (torso fixed)"
+  cite: "Saul et al. 2015, as modified by McFarland et al. 2019 (Millard muscles matched to Schutte curves)"
+  licence: "No licence file in the package; SimTK lists a Creative Commons ANC Use Agreement. Not redistributed."
   opensim_version: "4.6"
 
-names:                                    # TODO(Task 3): fill from model inventory
-  wrist_flexion: null
-  wrist_deviation: null
-  forearm_rotation: null
-  elbow_flexion: null
-  hand_body: null
-  wrist_extensors: []
-  wrist_flexors: []
+names:                                    # verified from results/model_inventory.md (2026-11-03)
+  wrist_flexion: flexion                  # joint radiocarpal; "Coupled" type, rad; + = flexion (FCR/FCU r > 0)
+  wrist_deviation: deviation              # joint radiocarpal; + = ulnar deviation (ECU r > 0)
+  forearm_rotation: pro_sup               # joint radioulnar; +90 deg = pronated (palm down)
+  elbow_flexion: elbow_flexion
+  hand_body: hand                         # 0.58 kg; child of wrist_hand (r1/r3 coupled to deviation/flexion)
+  wrist_extensors: [ECRL, ECRB, ECU]
+  wrist_flexors: [FCR, FCU]
+  # PL is also a wrist flexor and is kept. The extrinsic finger muscles (FDS*, FDP*, EDC*, EDM, EIP,
+  # EPL, EPB, FPL, APL) also cross the wrist but are removed: the fingers hold the cup in a
+  # fixed grasp (P1 scope), so they are not available to move the wrist. Add them here to test that.
+  other_wrist_muscles: [PL]
 
 posture:                                  # locked joint angles (deg), chosen so gravity flexes the wrist
-  free_wrist_deviation: false
-  locked_deg: {}                          # TODO(Task 4): {coordinate_name: angle_deg}
+  free_wrist_deviation: false             # false: deviation held at 0 by a constant coupler constraint
+  locked_deg:                             # arm at the side, elbow 90 deg, forearm horizontal and pronated
+    shoulder_elv: 0.0
+    elv_angle: 0.0
+    shoulder_rot: 0.0
+    elbow_flexion: 90.0
+    pro_sup: 90.0                         # checked: gravity torque on flexion > 0 (flexing) at this posture
+    deviation: 0.0
 
 cup:
   mass_kg: 0.3
   # cylinder approximating a filled mug held in the palm
   radius_m: 0.04
   height_m: 0.10
-  offset_in_hand_m: [0.0, -0.08, 0.04]    # TODO(Task 4): grasp point in hand-body frame
+  # MoBL-ARMS hand frame in this posture: -y distal, -z palmar (down). 8 cm distal, 4 cm palmar.
+  offset_in_hand_m: [0.0, -0.08, -0.04]
+  orientation_in_hand_deg: [90.0, 0.0, 0.0]   # cup axis (body y) along hand z = vertical
 
 task:
-  start_deg: -30.0                        # wrist flexion angle sign convention: TODO(Task 3) verify
-  end_deg: 15.0
+  start_deg: 30.0                         # + = flexion (dropped wrist); sign verified from moment arms
+  end_deg: -15.0                          # - = extension (functional)
   duration_s: 1.0
   hold_fraction: 0.3                      # last 30 % of the motion is a hold at end_deg
   track_weight: 100.0                     # weight of wrist-angle tracking (min-jerk move + hold reference)

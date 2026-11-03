@@ -36,11 +36,20 @@ def test_processed_model_builds_and_inits(built):
 
 @needs_model
 def test_only_intended_coordinates_unlocked(built):
-    model, _ = built
+    """Only the configured coordinates move freely. Anything else left in the model must be either
+    braced (fixed by a brace actuator + state bounds, e.g. MoBL-ARMS deviation) or driven by a
+    coupler constraint (e.g. MoBL-ARMS wrist_hand_r1/r3)."""
+    model, info = built
+    state = model.initSystem()
     coords = [model.getCoordinateSet().get(i) for i in range(model.getCoordinateSet().getSize())]
-    names = sorted(c.getName() for c in coords)
-    assert names == sorted(free_coordinates(CFG))
+    free = set(free_coordinates(CFG))
+    assert free <= {c.getName() for c in coords}
     assert not any(c.getDefaultLocked() for c in coords)
+    for c in coords:
+        if c.getName() in free:
+            assert not c.isConstrained(state), c.getName()
+        else:
+            assert c.getName() in info["braced_coordinates"] or c.isConstrained(state), c.getName()
 
 
 @needs_model

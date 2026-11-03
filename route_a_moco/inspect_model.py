@@ -19,8 +19,13 @@ from common import RESULTS_DIR, load_config, model_path  # noqa: E402
 MOMENT_ARM_TOL = 1e-4  # m; |r| below this counts as "does not span"
 
 
+def _angular(coord):
+    # "Coupled" coordinates (e.g. MoBL-ARMS wrist flexion/deviation) drive rotations via constraints
+    return coord.getMotionType() in (osim.Coordinate.Rotational, osim.Coordinate.Coupled)
+
+
 def _fmt_coord_value(coord, value):
-    if coord.getMotionType() == osim.Coordinate.Rotational:
+    if _angular(coord):
         return f"{math.degrees(value):.1f}°"
     return f"{value:.4f} m"
 
@@ -31,7 +36,8 @@ def coordinate_rows(model):
         rows.append({
             "name": c.getName(),
             "joint": c.getJoint().getName(),
-            "type": "rot" if c.getMotionType() == osim.Coordinate.Rotational else "trans",
+            "type": {osim.Coordinate.Rotational: "rot", osim.Coordinate.Translational: "trans",
+                     osim.Coordinate.Coupled: "coupled"}.get(c.getMotionType(), "other"),
             "default": _fmt_coord_value(c, c.getDefaultValue()),
             "range": f"[{_fmt_coord_value(c, c.getRangeMin())}, {_fmt_coord_value(c, c.getRangeMax())}]",
             "locked": c.getDefaultLocked(),

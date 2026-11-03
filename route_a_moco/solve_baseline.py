@@ -24,7 +24,7 @@ import numpy as np
 import opensim as osim
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from build_model import RESERVE_PREFIX, build, gravity_torque  # noqa: E402
+from build_model import RESERVE_PREFIX, build, gravity_torques  # noqa: E402
 from common import RESULTS_DIR, load_config  # noqa: E402
 
 log = logging.getLogger("solve_baseline")
@@ -47,6 +47,28 @@ def reference_table(qpath, q0, q1, duration, t_move, n=101):
         row = osim.RowVector(1, float(qi))
         table.appendRow(float(ti), row)
     return table
+
+
+def coupled_guess(model, free_name, free_values, dependent):
+    """Values of coupler-driven coordinates (e.g. MoBL-ARMS wrist_hand_r3 = f(flexion)) along a
+    guessed trajectory of the free coordinate, from assembling the model at each point."""
+    if not dependent:
+        return {}
+    m = model.clone()
+    s = m.initSystem()
+    cs = m.getCoordinateSet()
+    out = {n: [] for n in dependent}
+    for q in free_values:
+        cs.get(free_name).setValue(s, float(q), False)
+        independent = [k for k in range(cs.getSize()) if not cs.get(k).isConstrained(s)]
+        for k in independent:
+            cs.get(k).setLocked(s, True)
+        m.assemble(s)
+        for k in independent:
+            cs.get(k).setLocked(s, False)
+        for n in dependent:
+            out[n].append(cs.get(n).getValue(s))
+    return out
 
 
 def coord_path(model, name):
@@ -76,8 +98,20 @@ def make_study(cfg, model, info, num_intervals, control_weights=None):
         problem.setStateInfo(p + "/value", [c.getRangeMin(), c.getRangeMax()])
         problem.setStateInfo(p + "/speed", [-20.0, 20.0], 0.0, 0.0)
 
+    for n in info.get("dependent_coordinates", []):  # coupler-driven: realistic bounds, not +-1e5 rad
+        p = coord_path(model, n)
+        problem.setStateInfo(p + "/value", [-math.pi, math.pi])
+        problem.setStateInfo(p + "/speed", [-40.0, 40.0])
+    for n in info.get("braced_coordinates", []):  # held at their default (e.g. MoBL-ARMS deviation)
+        c = model.getCoordinateSet().get(n)
+        p, d = coord_path(model, n), c.getDefaultValue()
+        problem.setStateInfo(p + "/value", [d, d], d, d)
+        problem.setStateInfo(p + "/speed", [0.0, 0.0], 0.0, 0.0)
+
     rc = cfg["reserves"]
     effort = osim.MocoControlGoal("effort", rc["effort_weight"])
+    for b in info.get("braces", []):  # the brace is an ideal external hold, nearly free
+        effort.setWeightForControl("/forceset/" + b, 1e-3)
     for r in info["reserves"]:
         effort.setWeightForControl("/forceset/" + r, rc["reserve_weight"])
     for path, w in (control_weights or {}).items():
@@ -103,7 +137,10 @@ def make_study(cfg, model, info, num_intervals, control_weights=None):
 
     guess = solver.createGuess()
     tg = guess.getTime().to_numpy()
-    guess.setState(qpath + "/value", osim.Vector(list(min_jerk_reference(tg, q0, q1, t_move))))
+    qg = min_jerk_reference(tg, q0, q1, t_move)
+    guess.setState(qpath + "/value", osim.Vector(list(qg)))
+    for name, values in coupled_guess(model, q, qg, info.get("dependent_coordinates", [])).items():
+        guess.setState(coord_path(model, name) + "/value", osim.Vector(list(values)))
     solver.setGuess(guess)
     return study, solver, qpath
 
@@ -140,7 +177,7 @@ def evaluate(cfg, model, info, sol, qpath):
          "hold_max_error_deg": float(np.degrees(np.max(np.abs(q[hold] - q1))))}
 
     qname = cfg["names"]["wrist_flexion"]
-    g = np.array([gravity_torque(model, qname, float(qi)) for qi in q])
+    g = np.array(gravity_torques(model, qname, [float(qi) for qi in q]))
     m["gravity_torque_start_Nm"] = float(g[0])
     m["gravity_torque_end_Nm"] = float(g[-1])
     m["gravity_torque_peak_abs_Nm"] = float(np.max(np.abs(g)))
