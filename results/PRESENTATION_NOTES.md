@@ -1,6 +1,7 @@
-# P2 presentation notes (for the team, 3 Nov 2026, 14:00 CET)
+# P2 presentation notes (for the team, 4 Nov 2026)
 
-Prepared from the repository state on 2 Nov 2026. All numbers below are in `results/` and can be
+**Deck:** `presentation/P2_Team7_Wrist_Exo_Baseline.pptx` (PDF backup next to it). It has 17 slides in the P1 style, with speaker notes on every slide.
+Presentation date: **Wed 4 Nov 2026**. Prepared from the repository state on 2–3 Nov 2026. All numbers below are in `results/` and can be
 reproduced with the README commands.
 
 ## One-sentence story

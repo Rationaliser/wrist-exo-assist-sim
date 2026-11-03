@@ -66,6 +66,7 @@ wrist-exo-assist-sim/
 │   └── plot_k1.py                # K1 sweep figure
 ├── route_b_rl/
 │   └── smoke_test.py             # MyoSuite environment smoke test
+├── presentation/                 # P2 slide deck (.pptx + .pdf) and its generator script
 ├── results/                      # solutions (.sto), figures (.png), reports, SUMMARY.md
 └── tests/
     └── test_build_model.py
