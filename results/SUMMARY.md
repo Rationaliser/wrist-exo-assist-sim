@@ -1,6 +1,6 @@
-# P2 baseline simulation: results summary
+# Route A simulation: results summary
 
-3 November 2026
+3 November 2026, K1 on MoBL-ARMS added 17 November 2026
 
 The Route A baseline runs on the MoBL-ARMS upper-limb model. The wrist lifts a 0.3 kg cup from a
 dropped position and holds it level, and the six wrist muscles do all of the work (the penalised
@@ -8,7 +8,7 @@ reserve actuator stays at 0.02 % of the gravity torque).
 
 A planar two-muscle wrist model is kept next to MoBL-ARMS. It reproduces the MoBL-ARMS baseline
 closely and solves in seconds instead of about 45 minutes, so the first K1–K3 studies were run on
-it. Those numbers are early results and will be repeated on MoBL-ARMS in P3.
+it. K1 has since been repeated on MoBL-ARMS (below); K2 and K3 on MoBL-ARMS are still to come.
 
 ## Setup
 
@@ -72,6 +72,55 @@ Hermite–Simpson, tolerance 1e-3, 30 mesh intervals refined to 60.
 ECRB and ECRL carry most of the load. The brace mainly absorbs their radial-deviation pull, which
 ECU would otherwise have to balance.
 
+## K1 on MoBL-ARMS (weakness sweep)
+
+The maximum isometric force of ECRL, ECRB and ECU was scaled together and the baseline task was
+solved again at each level. A level fails if the solver does not converge, the reserve exceeds 10 %
+of the peak gravity torque, or the wrist drifts more than 2° from the target during the hold.
+
+To keep the sweep practical, every level was solved on the coarse mesh only (30 intervals, about
+8–17 minutes each), warm-started from the saved solution at the nearest strength level, with at most
+600 iterations. Eight grid levels ran as two parallel chains, followed by three bisection steps.
+Command: `sweep_weakness.py --coarse-only --warm-start --max-iter 600`.
+
+| Extensor strength | Solver | Peak extensor activation | Reserve / gravity | Hold drift | Task |
+|---|---|---|---|---|---|
+| 100 % | converged | 0.12 | 0.01 % | 0.14° | passes |
+| 50 % | converged | 0.27 | 0.05 % | 0.23° | passes |
+| 30 % | converged | 0.47 | 0.13 % | 0.28° | passes |
+| 20 % | converged | 0.72 | 0.28 % | 0.38° | passes |
+| 15 % | converged | 0.97 | 0.50 % | 0.49° | passes |
+| 12 % | converged | 1.00 | 2.3 % | 0.70° | passes |
+| 11.75 % | converged | 1.00 | 2.8 % | 1.04° | passes |
+| 11.5 % | converged | 1.00 | 3.7 % | 2.10° | fails (drift) |
+| 11 % | converged | 1.00 | 6.1 % | 5.17° | fails (drift) |
+| 10 % | iteration limit | 1.00 | 19 % | 7.8° | fails |
+| 8 % | Error_In_Step_Computation | 1.00 | 53 % | 14.8° | fails |
+
+**K1: the task fails between 11.5 % and 11.75 % of unimpaired extensor strength** (about 11.6 %,
+coarse mesh). The planar model gave 10.62–10.75 %, so the two models agree to about one percentage
+point.
+
+From about 15 % strength down, the extensors are fully activated. Close to the threshold the wrist
+does not collapse at once: the muscles still produce most of the torque, the reserve stays below
+10 %, and the hand sags slowly during the hold. Hold drift is therefore the criterion that decides K1,
+and the reserve criterion only takes over below about 10 %.
+
+Convergence checks:
+
+- 11.75 % was solved twice from different starting points (the 11.5 % and the 12 % solutions) and
+  reached the same optimum both times (objective 2.6997), so the pass is reproducible.
+- Restarting a near-threshold level from its own converged solution does not work: 11.75 % then hit
+  the iteration limit, and 12 % converged to a much worse local optimum (objective 116.9 instead of
+  2.49). In these solutions the extensor activations sit on their upper bound, and the interior-point
+  solver moves away from it first. Starting from a neighbouring level avoids this.
+- Refining the near-threshold levels to 60 intervals failed (11.5 %: Error_In_Step_Computation;
+  12 %: no convergence from the poor coarse start). K1 is therefore a coarse-mesh result. A robust
+  statement is that 12 % passes and 11 % clearly fails.
+
+Files: `baseline_k1_sweep.csv`, `baseline_k1_summary.json`, `baseline_k1_sweep.png`, solutions in
+`baseline_k1_solutions/`.
+
 ## Planar model check
 
 The planar model has a fixed pronated forearm, a hand on one pin joint, one lumped extensor (782 N,
@@ -105,21 +154,23 @@ and the muscles ECRL, ECRB, ECU, FCR, FCU, PL are available by name (`myosuite_s
 - `baseline_wrist_angle.png`, `baseline_activations.png`, `baseline_reserve_torque.png`,
   `baseline_mean_activation.png`: MoBL-ARMS baseline.
 - `planar_*.png`: the same plots for the planar model, plus `planar_model_schematic.png`.
-- `planar_k1_sweep.png`, `planar_assist.png`: K1–K3.
+- `baseline_k1_sweep.png`: K1 on MoBL-ARMS (activation, reserve and hold drift against strength).
+- `planar_k1_sweep.png`, `planar_assist.png`: K1–K3 on the planar model.
 - `pipeline_diagram.png`: method overview.
 
 ## Limitations
 
-- K1–K3 come from the planar model; the thresholds are model-specific.
+- K1 on MoBL-ARMS is a coarse-mesh result; refinement near the threshold did not converge.
+- K2 and K3 still come from the planar model; the thresholds are model-specific.
 - Deviation is braced at 0° in the baseline.
 - Finger muscles are left out.
 - The hold is shaped by a tracking term, so the kinematics are partly prescribed.
-- MoBL-ARMS solves take about 45 minutes, which limits how many sweep points are practical.
+- MoBL-ARMS solves take 8–17 minutes on the coarse mesh and about 45 minutes with refinement, which
+  limits how many sweep points are practical.
 - One generic adult and one 1 s task: the results are relative, not clinical predictions.
 
 ## Next steps (P3)
 
-- K1 on MoBL-ARMS: coarse-mesh sweep with warm starts from the neighbouring strength level.
 - Sensitivity to cup mass, movement time and a free wrist deviation.
 - Spring vs. motor on MoBL-ARMS, with stiffness and rest angle as Moco parameters.
 - Route B: PPO in `myoHandObjHold` with the MoBL-ARMS wrist trajectory as reference.

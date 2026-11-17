@@ -1,0 +1,22 @@
+{
+  "criteria": {
+    "reserve_limit_pct_of_gravity": 10.0,
+    "hold_limit_deg": 2.0,
+    "solver_must_converge": true
+  },
+  "scaled_muscles": [
+    "ECRL",
+    "ECRB",
+    "ECU"
+  ],
+  "mesh": {
+    "coarse": 30,
+    "refine": null
+  },
+  "max_iterations": 600,
+  "warm_start": true,
+  "k1": {
+    "weakest_passing_factor": 0.1175,
+    "strongest_failing_factor": 0.115
+  }
+}

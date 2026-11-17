@@ -1,8 +1,9 @@
 """Figure for the K1 weakness sweep (results/<tag>_k1_sweep.csv -> results/<tag>_k1_sweep.png).
 
-Two panels sharing the x axis (extensor strength, % of unimpaired max isometric force):
-  left  peak wrist-extensor activation
-  right peak reserve torque as % of the peak gravity torque, with the 10 % failure line
+Three panels sharing the x axis (extensor strength, % of unimpaired max isometric force):
+  left    peak wrist-extensor activation
+  middle  peak reserve torque as % of the peak gravity torque, with the 10 % failure line
+  right   largest drift from the target angle during the hold, with the 2 deg failure line
 Filled markers = task passes, hollow = task fails. The shaded band is the K1 interval.
 
 Usage:  python analysis/plot_k1.py [--tag planar] [--stamp "Planar 2-muscle wrist model"]
@@ -34,10 +35,11 @@ def main():
     x = 100 * df["strength_factor"]
     ok = df["task_ok"].astype(bool)
 
-    fig, axes = plt.subplots(1, 2, figsize=(pr.HALF_PAGE[0] * 2.0, pr.HALF_PAGE[1]), sharex=True)
-    fig.subplots_adjust(wspace=0.35)
+    fig, axes = plt.subplots(1, 3, figsize=(pr.HALF_PAGE[0] * 3.0, pr.HALF_PAGE[1]), sharex=True)
+    fig.subplots_adjust(wspace=0.38, bottom=0.24)
     panels = [("ext_activation_peak", "Peak extensor activation (0–1)", "Extensor activation"),
-              ("reserve_peak_pct_gravity", "Peak reserve / gravity torque (%)", "Reserve torque needed")]
+              ("reserve_peak_pct_gravity", "Peak reserve / gravity torque (%)", "Reserve torque needed"),
+              ("hold_max_error_deg", "Max hold drift (deg)", "Hold drift")]
     for ax, (col, ylab, title) in zip(axes, panels):
         ax.plot(x, df[col], color=pr.SERIES[0], lw=1.4, zorder=2)
         ax.scatter(x[ok], df[col][ok], s=22, color=pr.SERIES[0], zorder=3, label="task passes")
@@ -59,12 +61,15 @@ def main():
     if "weakest_passing_factor" in k1["k1"]:
         hi = 100 * k1["k1"]["weakest_passing_factor"]
         mid = 50 * (k1["k1"]["weakest_passing_factor"] + k1["k1"]["strongest_failing_factor"])
-        axes[0].annotate(f"K1 ≈ {mid:.1f} %", (hi, 0.9), xytext=(6, 0), textcoords="offset points",
-                         fontsize=7, color=pr.INK2, va="center")
-    lim = k1["criteria"]
-    axes[0].text(98, 0.62, f"fail = solver fails, reserve > {lim['reserve_limit_pct_of_gravity']:.0f} %\n"
-                 f"of gravity torque, or hold drift > {lim['hold_limit_deg']:.0f}°",
-                 ha="right", va="top", fontsize=6.5, color=pr.INK2)
+        axes[0].annotate(f"K1 ≈ {mid:.1f} %", (hi, 0.5), xytext=(-5, 0), textcoords="offset points",
+                         fontsize=7, color=pr.INK2, va="center", ha="right", rotation=90)
+    hlim = k1["criteria"]["hold_limit_deg"]
+    axes[2].axhline(hlim, color=pr.INK2, lw=0.9, ls=(0, (4, 3)))
+    axes[2].text(100, hlim, f"failure limit {hlim:.0f}°", ha="right", va="bottom", fontsize=7, color=pr.INK2)
+    axes[2].set_ylim(0, max(hlim * 1.5, df["hold_max_error_deg"].max() * 1.08))
+    fig.text(0.5, 0.02, f"Task fails if the solver does not converge, the reserve exceeds {crit:.0f} % of the "
+             f"gravity torque, or the wrist drifts more than {hlim:.0f}° during the hold.",
+             ha="center", fontsize=7, color=pr.INK2)
     out = RESULTS_DIR / f"{args.tag}_k1_sweep.png"
     pr.save(fig, out)
     print(f"wrote {out}")

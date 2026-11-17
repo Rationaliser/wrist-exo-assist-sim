@@ -101,6 +101,18 @@ pytest
 
 `solve_baseline.py --torque-driven` replaces the muscles with an ideal wrist actuator.
 
+K1 on MoBL-ARMS (about 8–17 min per level on the coarse mesh). Each level starts from the saved
+solution at the nearest strength level, so the grid can be split over several processes. Run each
+process from its own working directory, because Moco's stop file would otherwise be shared.
+
+```bash
+python route_a_moco/sweep_weakness.py --coarse-only --warm-start --max-iter 600 \
+    --factors 1.0,0.5,0.3,0.2,0.15,0.12,0.1,0.08 --bisect 0
+python route_a_moco/sweep_weakness.py --coarse-only --warm-start --max-iter 600 \
+    --bisect-range 0.1,0.12 --bisect 3
+python analysis/plot_k1.py --stamp "MoBL-ARMS | coarse mesh (30 intervals)"
+```
+
 ### Route A: planar model
 
 All scripts read `$WRIST_CONFIG`, so the same commands run on the planar model (seconds per solve):
